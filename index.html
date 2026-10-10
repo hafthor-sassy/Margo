@@ -1,0 +1,1409 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Margo</title>
+    <meta name="description" content="Ta marge sur TikTok Shop en 3 secondes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Margo" />
+    <meta name="application-name" content="Margo" />
+    <meta name="theme-color" id="themeColor" content="#F2F4F7" />
+    <link rel="icon" type="image/png" href="margo-icon-512.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link id="mf" rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Margo%22%2C%22short_name%22%3A%22Margo%22%2C%22display%22%3A%22standalone%22%2C%22theme_color%22%3A%22%230075EB%22%7D" />
+    <script>
+      /* Thème : choix mémorisé, sinon celui du système */
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem("hark-theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark") t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", t);
+        var m = document.getElementById("themeColor"); if (m) m.setAttribute("content", t === "dark" ? "#0B0D12" : "#F2F4F7");
+      })();
+    </script>
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      /* Design inspiré de Revolut, à la demande de l'utilisateur */
+      :root {
+        --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+        --x-blue: #0075EB; --x-blue-ink: #005FC2; --x-violet: #6B4BFF; --x-tint: #E8F2FD;
+        --x-bg: #F2F4F7; --x-card: #FFFFFF; --x-ink: #101828; --x-grey: #667085; --x-line: #EAECF0; --x-field: #F2F4F7;
+        --x-green: #00B67A; --x-green-ink: #067647; --x-green-bg: #E3F6EE;
+        --x-amber: #FFB020; --x-amber-ink: #8A5300; --x-amber-bg: #FFF4DB;
+        --x-red: #F04438; --x-red-ink: #D92D20; --x-red-bg: #FEECEB;
+        --x-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
+        --x-grad: linear-gradient(135deg, var(--x-blue) 0%, var(--x-violet) 100%);
+        --x-hover: #D6E8FC; --x-ph: #8A94A6; --x-off: #D0D5DD; --x-focus-bg: #FFFFFF; --x-bar: rgba(255, 255, 255, 0.94);
+      }
+      :root[data-theme="dark"] {
+        --x-bg: #0B0D12; --x-card: #161A22; --x-line: #323A49; --x-ink: #F2F4FA; --x-grey: #A9B2C7; --x-field: #1E232D;
+        --x-tint: #14263F; --x-blue-ink: #5AA9FF; --x-violet-ink: #9D88FF; --x-hover: #1B3352; --x-ph: #9DA6BB; --x-off: #4A5263; --x-focus-bg: #1E232D; --x-bar: rgba(22, 26, 34, 0.94);
+        --x-green-ink: #4BD69B; --x-green-bg: #0E2A20;
+        --x-amber-ink: #FFC861; --x-amber-bg: #2E2410;
+        --x-red-ink: #FF8A80; --x-red-bg: #33171A;
+        --x-shadow: 0 0 0 1px var(--x-line);
+        --text-primary: #F2F4FA; --text-secondary: #A9B2C7; --stroke-primary: #3A4252; --stroke-secondary: #2A303C;
+      }
+      /* Mode sombre : accents lisibles là où le bleu sert de texte */
+      :root[data-theme="dark"] .x-tabbar button[aria-selected="true"], :root[data-theme="dark"] .x-ico { color: var(--x-blue-ink); }
+      :root[data-theme="dark"] .x-fold > summary::after { border-color: var(--x-blue-ink); }
+      :root[data-theme="dark"] .x-input.is-missing { border-color: var(--x-red-ink); }
+      :root[data-theme="dark"] .x-chip:hover, :root[data-theme="dark"] .x-sug:hover { border-color: var(--x-blue-ink); }
+      :root[data-theme="dark"] .fineprint, :root[data-theme="dark"] .stat__label, :root[data-theme="dark"] .foot, :root[data-theme="dark"] .foot a { color: var(--x-grey); }
+      html, body { background: var(--x-bg); color: var(--x-ink); transition: background-color 0.3s ease, color 0.3s ease; }
+      .x-card, .x-fold, .x-tiles, .x-tabbar, .x-input, .x-ghost, .x-seg span, .x-chip, .x-step button, .x-tip, .x-cmp, .x-tx-ico, .x-verdict, .x-av, .x-lnk { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+      @media (prefers-reduced-motion: reduce) { html, body, .x-card, .x-fold, .x-tiles, .x-tabbar, .x-input, .x-ghost, .x-seg span, .x-chip, .x-step button { transition: none !important; } }
+      .page { max-width: 640px; padding-block: 12px 24px; }
+      .x-shell { display: grid; gap: 14px; padding-top: env(safe-area-inset-top, 0px); padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+      .x-panel { display: grid; gap: 14px; min-width: 0; }
+      .x-panel[hidden] { display: none !important; }
+
+      /* Hero : écran de solde */
+      .x-hero { display: grid; gap: 20px; padding: 16px 20px 26px; border-radius: 24px; color: #fff; background: radial-gradient(circle at 88% -10%, rgba(255, 255, 255, 0.22), transparent 45%), linear-gradient(135deg, var(--x-blue) 0%, var(--x-violet) 100%); box-shadow: 0 14px 32px rgba(0, 117, 235, 0.25); min-width: 0; }
+      .x-top { display: flex; align-items: center; gap: 10px; padding: 4px 4px 0; min-width: 0; }
+      .x-logo { flex: none; display: block; width: 32px; height: 32px; border-radius: 22%; }
+      .x-logo--dark { display: none; }
+      :root[data-theme="dark"] .x-logo--light { display: none; }
+      :root[data-theme="dark"] .x-logo--dark { display: block; }
+      .x-theme { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); padding: 0; border: 0; border-radius: 50%; background: var(--x-card); color: var(--x-ink); box-shadow: var(--x-shadow); cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease; }
+      .x-theme:hover { background: var(--x-tint); color: var(--x-blue-ink); }
+      .x-theme:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-theme .x-sun { display: none; }
+      :root[data-theme="dark"] .x-theme .x-sun { display: block; }
+      :root[data-theme="dark"] .x-theme .x-moon { display: none; }
+      .x-top-t { flex: 1; min-width: 0; }
+      .x-top h1 { font: 700 17px/1.2 var(--sans); letter-spacing: -0.01em; }
+      .x-top p { font: 500 12px/1.3 var(--sans); color: var(--x-grey); white-space: nowrap; overflow: visible; text-overflow: clip; }
+      .x-hero-main { display: grid; justify-items: center; gap: 6px; text-align: center; min-width: 0; }
+      .x-hero-main[hidden], .x-hero-empty[hidden], .x-res[hidden] { display: none; }
+      .x-hero-cap { font: 600 12px/1.3 var(--sans); letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255, 255, 255, 0.85); }
+      .x-hero-empty { display: grid; justify-items: center; gap: 10px; padding: 12px 0 4px; text-align: center; }
+      .x-hero-empty .x-eico { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); }
+      .x-hero-empty p { max-width: 30ch; font: 600 17px/1.35 var(--sans); }
+      .x-hero-empty small { max-width: 34ch; font: 400 13px/1.4 var(--sans); color: rgba(255, 255, 255, 0.92); }
+      .x-res { display: grid; gap: 14px; min-width: 0; }
+      .x-hero-name { max-width: 100%; padding: 4px 12px; border-radius: var(--r-pill); background: rgba(255, 255, 255, 0.16); font: 600 13px/1.3 var(--sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-hero-label { margin-top: 6px; font: 500 15px/1.3 var(--sans); color: rgba(255, 255, 255, 0.92); }
+      .x-big { font: 700 clamp(42px, 12.5vw, 56px)/1.05 var(--sans); letter-spacing: -0.035em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+      .x-rate { font: 500 14px/1.35 var(--sans); color: rgba(255, 255, 255, 0.95); }
+      .x-vpill { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; color: #fff; font: 600 15px/1.3 var(--sans); }
+      .x-vpill::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.6); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.28); }
+      .x-vpill[data-v="good"]::before { background: var(--x-green); }
+      .x-vpill[data-v="mid"]::before { background: var(--x-amber); }
+      .x-vpill[data-v="bad"]::before { background: var(--x-red); }
+      .x-hero-empty .x-eico img { width: 30px; height: 30px; }
+      .x-reason { max-width: 36ch; font: 400 13px/1.4 var(--sans); color: rgba(255, 255, 255, 0.92); }
+
+      /* Tuiles chiffrées */
+      .x-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 16px 8px; border-radius: 22px; background: var(--x-card); box-shadow: var(--x-shadow); min-width: 0; }
+      .x-tile { display: grid; gap: 3px; align-content: start; justify-items: start; padding: 0 10px; min-width: 0; }
+      .x-tile + .x-tile { border-left: 1px solid var(--x-line); }
+      .x-ico { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 6px; border-radius: 50%; background: var(--x-tint); color: var(--x-blue); }
+      .x-tile-l { font: 500 12px/1.3 var(--sans); color: var(--x-grey); }
+      .x-tile-v { font: 700 17px/1.25 var(--sans); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+      .x-tile-s { font: 400 12px/1.3 var(--sans); color: var(--x-grey); }
+      @media (max-width: 360px) { .x-tile { padding: 0 6px; } .x-tile-v { font-size: 15px; } }
+      .x-tile-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; width: 100%; }
+      .x-i { position: relative; flex: none; display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: var(--x-field); color: var(--x-grey); font: 700 12px/1 Georgia, serif; font-style: italic; cursor: pointer; }
+      .x-i::after { content: ""; position: absolute; inset: -12px; }
+      .x-i[aria-expanded="true"] { background: var(--x-blue); color: #fff; }
+      .x-i:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-tip { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: var(--x-field); color: var(--x-ink); font: 400 12px/1.4 var(--sans); }
+      .x-tip[hidden] { display: none; }
+      .x-cmp { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 14px 10px 0; padding: 12px 14px; border-radius: 14px; background: var(--x-red-bg); color: var(--x-red-ink); font: 600 14px/1.4 var(--sans); }
+      .x-cmp[data-v="good"] { background: var(--x-green-bg); color: var(--x-green-ink); }
+      .x-cmp[data-v="none"] { background: var(--x-field); color: var(--x-grey); }
+      .x-cmp[hidden] { display: none; }
+      .x-apply { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0 18px; border: 0; border-radius: 18px; background: var(--x-grad); color: #fff; font: 600 15px/1.3 var(--sans); text-align: left; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 117, 235, 0.25); }
+      .x-apply[hidden] { display: none; }
+      .x-apply:hover, .x-primary:hover { filter: brightness(0.92); }
+      .x-apply:focus-visible, .x-primary:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 3px; }
+
+      /* Cartes */
+      .x-card { display: grid; gap: 14px; padding: 20px; border-radius: 22px; background: var(--x-card); box-shadow: var(--x-shadow); min-width: 0; }
+      .x-card h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 700 19px/1.25 var(--sans); letter-spacing: -0.02em; }
+      .x-card > p { margin: 0; }
+      .x-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .x-field { display: grid; gap: 6px; align-content: end; min-width: 0; }
+      .x-field > span:not(.x-affix), .x-field > label { font: 500 13px/1.3 var(--sans); color: var(--x-grey); }
+      .x-field > span.x-fl { color: var(--x-ink); font-weight: 600; font-size: 14px; }
+      .x-help { display: block; font: 400 12px/1.4 var(--sans); color: var(--x-grey); }
+      .x-help[hidden] { display: none; }
+      .x-help.is-auto { color: var(--x-blue-ink); }
+      .x-linkrow { display: flex; gap: 8px; min-width: 0; }
+      .x-linkrow .x-input { flex: 1; min-width: 0; }
+      .x-linkrow .x-ghost { min-height: 50px; border-radius: 14px; }
+      .x-linkrow .x-ghost[hidden] { display: none; }
+      .x-affix { position: relative; display: block; }
+      .x-affix .x-input { padding-right: 34px; }
+      .x-affix i { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font: 500 16px/1 var(--sans); font-style: normal; color: var(--x-grey); pointer-events: none; }
+      .x-input { width: 100%; min-height: 50px; padding: 0 14px; border: 1.5px solid transparent; border-radius: 14px; background: var(--x-field); color: var(--x-ink); font: 500 16px/1.3 var(--sans); font-variant-numeric: tabular-nums; -webkit-appearance: none; appearance: none; transition: border-color var(--dur-quick) var(--ease-out), background var(--dur-quick) var(--ease-out); }
+      .x-input::placeholder { color: var(--x-ph); }
+      .x-input:focus { outline: none; border-color: var(--x-blue); background: var(--x-focus-bg); box-shadow: 0 0 0 3px rgba(0, 117, 235, 0.15); }
+      .x-input.is-missing { border-color: var(--x-red); }
+      td .x-input { min-height: var(--tap); padding: 0 10px; min-width: 5.5em; }
+      .x-ghost { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 0; border-radius: var(--r-pill); background: var(--x-tint); color: var(--x-blue-ink); font: 600 14px/1 var(--sans); white-space: nowrap; cursor: pointer; }
+      .x-ghost:hover { background: var(--x-hover); }
+      .x-ghost:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+
+      .x-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+      .x-seg legend { padding: 0; margin-bottom: 6px; font: 500 13px/1.3 var(--sans); color: var(--x-grey); }
+      .x-seg label { position: relative; display: block; cursor: pointer; }
+      .x-seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+      .x-seg span { display: flex; align-items: center; justify-content: center; min-height: 46px; border-radius: 14px; background: var(--x-field); color: var(--x-ink); font: 600 15px/1 var(--sans); transition: background var(--dur-quick) var(--ease-out); }
+      .x-seg input:checked + span { background: var(--x-blue); color: #fff; box-shadow: 0 4px 12px rgba(0, 117, 235, 0.3); }
+      .x-seg input:focus-visible + span { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-more > summary { display: inline-flex; align-items: center; min-height: var(--tap); font: 600 14px/1.3 var(--sans); color: var(--x-blue-ink); cursor: pointer; list-style: none; }
+      .x-more > summary::-webkit-details-marker { display: none; }
+      .x-more-body { display: grid; gap: 12px; padding-top: 4px; }
+
+      .x-switches { display: grid; }
+      .x-switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; border-bottom: 1px solid var(--x-line); font: 500 15px/1.35 var(--sans); cursor: pointer; }
+      .x-switch:last-child { border-bottom: 0; }
+      .x-switch small { display: block; margin-top: 2px; font: 400 12px/1.35 var(--sans); color: var(--x-grey); }
+      .x-switch input { flex: none; position: relative; width: 51px; height: 31px; margin: 0; border-radius: var(--r-pill); background: var(--x-off); -webkit-appearance: none; appearance: none; cursor: pointer; transition: background var(--dur-quick) var(--ease-out); }
+      .x-switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(16, 24, 40, 0.2); transition: transform var(--dur-quick) var(--ease-out); }
+      .x-switch input:checked { background: var(--x-blue); }
+      .x-switch input:checked::after { transform: translateX(20px); }
+      .x-switch input:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+
+      .x-warn { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--x-amber-bg); border-left: 3px solid var(--x-amber); color: var(--x-ink); font: 400 13px/1.4 var(--sans); }
+      .x-warn[hidden] { display: none; }
+      .x-primary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 54px; padding: 0 18px; border: 0; border-radius: var(--r-pill); background: var(--x-grad); color: #fff; font: 600 16px/1 var(--sans); cursor: pointer; }
+      .x-status { margin: -4px 0 0; font: 400 12px/1.3 var(--sans); color: var(--x-grey); min-height: 16px; text-align: center; }
+      .x-card .fineprint, .x-fold .fineprint { color: var(--x-grey); }
+
+      /* Volets repliables */
+      .x-fold { border-radius: 22px; background: var(--x-card); box-shadow: var(--x-shadow); min-width: 0; }
+      .x-fold > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; padding: 0 20px; font: 600 16px/1.3 var(--sans); cursor: pointer; list-style: none; }
+      .x-fold > summary::-webkit-details-marker { display: none; }
+      .x-fold > summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid var(--x-blue); border-bottom: 2px solid var(--x-blue); transform: rotate(45deg) translateY(-3px); transition: transform var(--dur-quick) var(--ease-out); }
+      .x-fold[open] > summary::after { transform: rotate(-135deg) translateX(-3px); }
+      .x-fold > summary:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; border-radius: 22px; }
+      .x-fold-body { display: grid; gap: 16px; padding: 0 20px 20px; min-width: 0; }
+      .x-card .stats, .x-fold .stats { padding-top: 0; }
+      .x-card .stat, .x-fold .stat { padding: 8px 16px; }
+      .x-card .stat:first-child, .x-fold .stat:first-child { padding-left: 0; }
+      @media (max-width: 760px) { .x-card .stat, .x-fold .stat { padding: 10px 0; } }
+
+      /* Détail : liste façon transactions */
+      .x-badge { display: block; color: var(--x-grey); font: 500 13px/1.4 var(--sans); }
+      .x-meta { flex: none; font: 500 12px/1.3 var(--sans); letter-spacing: 0; color: var(--x-grey); }
+      .x-tx { display: grid; margin: 0; padding: 0; list-style: none; }
+      .x-tx-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 9px 0; }
+      .x-tx-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--x-field); color: var(--x-ink); }
+      .x-tx-ico.is-pos { background: var(--x-green-bg); color: var(--x-green-ink); }
+      .x-tx-ico.is-total { background: linear-gradient(135deg, var(--x-blue), var(--x-violet)); color: #fff; }
+      .x-tx-l { display: grid; gap: 1px; min-width: 0; }
+      .x-tx-l b { font: 500 15px/1.3 var(--sans); }
+      .x-tx-l small { font: 400 12px/1.35 var(--sans); color: var(--x-grey); overflow-wrap: anywhere; }
+      .x-tx-a { font: 600 15px/1.3 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+      .x-tx-a.is-pos { color: var(--x-green-ink); } .x-tx-a.is-neg { color: var(--x-red-ink); } .x-tx-a.is-zero { color: var(--x-grey); }
+      .x-tx-total { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--x-line); }
+      .x-tx-total .x-tx-l b { font-weight: 700; font-size: 16px; }
+      .x-tx-total .x-tx-a { font-weight: 700; font-size: 18px; }
+
+      /* Pastilles de verdict */
+      .x-verdict { flex: none; display: inline-flex; align-items: center; gap: 6px; color: var(--x-grey); font: 500 12px/1.3 var(--sans); white-space: nowrap; }
+      .x-verdict::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--x-grey); }
+      .x-verdict[data-v="good"]::before { background: var(--x-green); }
+      .x-verdict[data-v="mid"]::before { background: var(--x-amber); }
+      .x-verdict[data-v="bad"]::before { background: var(--x-red); }
+
+      /* Mes produits */
+      .x-list { display: grid; gap: 2px; margin: 0 -8px; padding: 0; list-style: none; }
+      .x-item { display: flex; align-items: stretch; border-radius: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+      .x-item::-webkit-scrollbar { display: none; }
+      .x-row { flex: 1 0 100%; scroll-snap-align: start; display: flex; align-items: center; gap: 2px; min-width: 0; }
+      .x-lnk { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--x-tint); color: var(--x-blue-ink); }
+      .x-lnk:hover { background: var(--x-hover); }
+      .x-lnk:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-open { flex: 1 1 auto; min-width: 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 68px; padding: 8px; border: 0; border-radius: 16px; background: none; color: var(--x-ink); text-align: left; cursor: pointer; }
+      .x-open:hover { background: var(--x-bg); }
+      .x-av { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; overflow: hidden; background: var(--x-field); box-shadow: inset 0 0 0 1px var(--x-line); color: var(--x-grey); font: 600 17px/1 var(--sans); }
+      .x-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--x-line); background: var(--x-card); opacity: 0; transition: opacity 0.25s ease; }
+      .x-av img.is-in { opacity: 1; }
+      .x-thumb { flex: none; width: 48px; height: 48px; margin-right: 4px; border-radius: 12px; border: 1px solid var(--x-line); background: var(--x-field); object-fit: cover; opacity: 0; transition: opacity 0.25s ease; }
+      .x-thumb.is-in { opacity: 1; }
+      .x-thumb[hidden] { display: none; }
+      .x-it { display: grid; gap: 4px; justify-items: start; min-width: 0; }
+      .x-it b { max-width: 100%; font: 600 15px/1.3 var(--sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .x-mr { display: grid; gap: 2px; justify-items: end; text-align: right; }
+      .x-mr b { font: 700 15px/1.3 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .x-mr small { font: 400 12px/1.3 var(--sans); color: var(--x-grey); white-space: nowrap; }
+      .x-del { flex: none; scroll-snap-align: end; min-width: 96px; border: 0; border-radius: 16px; background: #D92D20; color: #fff; font: 600 14px/1 var(--sans); cursor: pointer; }
+      .x-empty { margin: 0; padding: 24px 0; text-align: center; color: var(--x-grey); font: 400 14px/1.4 var(--sans); }
+
+      /* Barre d'onglets */
+      .x-tabbar { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 6px max(8px, calc((100vw - 640px) / 2)) calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--x-bar); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-top: 1px solid var(--x-line); }
+      .x-tabbar button { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 54px; padding: 0 4px; border: 0; border-radius: 14px; background: none; color: var(--x-grey); font: 600 12px/1.2 var(--sans); white-space: nowrap; cursor: pointer; }
+      .x-tabbar button[aria-selected="true"] { color: var(--x-blue); }
+      .x-tabbar button:focus-visible { outline: 2px solid var(--x-blue); outline-offset: -2px; }
+      .x-tab-ico { position: relative; display: grid; place-items: center; width: 44px; height: 28px; border-radius: var(--r-pill); }
+      .x-tabbar button[aria-selected="true"] .x-tab-ico { background: var(--x-tint); }
+      .x-count { position: absolute; top: -4px; right: 0; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--x-blue); color: #fff; font: 700 12px/18px var(--sans); text-align: center; }
+      .x-count:empty { display: none; }
+      .foot { color: var(--x-grey); }
+
+      /* Ton produit, version compacte */
+      .x-prod { gap: 10px; padding: 14px 16px 12px; }
+      .x-prod h2 { font-size: 17px; }
+      .x-prod h2 .x-ghost { min-height: 34px; padding: 0 14px; font-size: 13px; }
+      .x-prod .x-field { gap: 4px; }
+      .x-prod .x-input { min-height: 44px; border-radius: 12px; font-size: 16px; }
+      .x-prod .x-linkrow .x-ghost { min-height: 44px; border-radius: 12px; }
+      .x-name { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--x-grey); }
+      .x-name svg { flex: none; }
+      .x-name input { flex: 1; min-width: 0; min-height: 28px; padding: 2px 0; border: 0; border-bottom: 1px dashed transparent; border-radius: 0; background: none; color: var(--x-ink); font: 500 13px/1.3 var(--sans); }
+      .x-name input::placeholder { color: var(--x-ph); }
+      .x-name input:focus { outline: none; border-bottom-color: var(--x-blue); }
+      .x-name small { flex: none; font: 400 12px/1.3 var(--sans); color: var(--x-blue-ink); }
+      .x-name small[hidden] { display: none; }
+      .x-prices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .x-prices label { font: 600 13px/1.25 var(--sans); color: var(--x-ink); }
+      .x-prices .x-help { font-size: 12px; line-height: 1.25; }
+      .x-step { display: flex; align-items: stretch; gap: 4px; min-width: 0; }
+      .x-step .x-affix { flex: 1; min-width: 0; }
+      .x-step .x-input { padding: 0 20px 0 6px; text-align: center; }
+      .x-step .x-affix i { right: 8px; font-size: 14px; }
+      .x-step button { flex: none; width: 32px; padding: 0; border: 0; border-radius: 10px; background: var(--x-tint); color: var(--x-blue-ink); font: 600 18px/1 var(--sans); cursor: pointer; }
+      .x-step button:hover { background: var(--x-hover); }
+      .x-step button:focus-visible, .x-chip:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-chips { display: grid; gap: 6px; min-width: 0; padding: 2px 0; touch-action: manipulation; overscroll-behavior: none; }
+      .x-chips[hidden] { display: none; }
+      .x-chips-row { display: flex; flex-wrap: nowrap; gap: 6px; min-width: 0; touch-action: manipulation; overscroll-behavior: none; }
+      .x-chip { position: relative; flex: 1 1 0; min-width: 0; min-height: 36px; padding: 0 4px; border: 1px solid var(--x-line); border-radius: var(--r-pill); background: var(--x-card); color: var(--x-ink); font: 600 13px/1 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer; touch-action: manipulation; }
+      .x-chip::after { content: ""; position: absolute; inset: -4px 0; }
+      .x-chip:hover { border-color: var(--x-blue); }
+      .x-chip[aria-pressed="true"] { border-color: transparent; background: var(--x-grad); color: #fff; }
+      .x-trapw { display: grid; grid-template-rows: 0fr; opacity: 0; margin-top: -10px; transition: grid-template-rows 0.2s var(--ease-out), opacity 0.2s var(--ease-out), margin-top 0.2s var(--ease-out); }
+      .x-trapw.is-open { grid-template-rows: 1fr; opacity: 1; margin-top: -2px; }
+      .x-trapw > div { min-height: 0; overflow: hidden; }
+      @media (prefers-reduced-motion: reduce) { .x-trapw { transition: none; } }
+      .x-trap { padding: 10px 12px; border-radius: 12px; background: var(--x-amber-bg); color: var(--x-ink); font: 400 13px/1.4 var(--sans); }
+      .x-trap-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .x-trap button { position: relative; min-height: 32px; padding: 0 12px; border: 1px solid var(--x-amber); border-radius: var(--r-pill); background: var(--x-card); color: var(--x-amber-ink); font: 600 13px/1 var(--sans); font-variant-numeric: tabular-nums; cursor: pointer; touch-action: manipulation; transition: background-color 0.2s ease; }
+      .x-trap button:hover { background: var(--x-amber-bg); }
+      .x-trap button::after { content: ""; position: absolute; inset: -6px 0; }
+      .x-trap button:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-busy { display: inline-flex; flex: none; align-items: center; gap: 6px; font: 400 12px/1.3 var(--sans); color: var(--x-grey); white-space: nowrap; }
+      .x-busy[hidden] { display: none; }
+      .x-spin { width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: x-spin 0.8s linear infinite; }
+      @keyframes x-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .x-spin { animation-duration: 2.4s; } }
+      .x-sugs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; min-width: 0; touch-action: manipulation; }
+      .x-sugs[hidden] { display: none; }
+      .x-sug { display: grid; gap: 2px; justify-items: center; align-content: center; min-width: 0; min-height: 64px; padding: 8px 6px; border: 1px solid var(--x-line); border-radius: 12px; background: var(--x-card); color: var(--x-ink); text-align: center; cursor: pointer; touch-action: manipulation; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+      .x-sug small { font: 500 12px/1.2 var(--sans); color: var(--x-grey); }
+      .x-sug b { font: 700 15px/1.2 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .x-sug span { font: 600 12px/1.2 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--x-grey); }
+      .x-sug span[data-v="good"] { color: var(--x-green-ink); } .x-sug span[data-v="mid"] { color: var(--x-amber-ink); } .x-sug span[data-v="bad"] { color: var(--x-red-ink); }
+      .x-sug:hover { border-color: var(--x-blue); }
+      .x-sug:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; }
+      .x-sug[aria-pressed="true"] { border-color: transparent; background: var(--x-grad); color: #fff; }
+      .x-sug[aria-pressed="true"] small, .x-sug[aria-pressed="true"] span { color: rgba(255, 255, 255, 0.92); }
+      .x-chips-l { display: block; font: 500 12px/1.3 var(--sans); color: var(--x-grey); }
+      .x-prod .x-seg { gap: 6px; }
+      .x-prod .x-seg legend { margin-bottom: 4px; font-size: 12px; }
+      .x-prod .x-seg span { flex-direction: column; gap: 2px; min-height: 44px; border-radius: 12px; font-size: 14px; }
+      .x-seg span small { display: none; font: 500 12px/1 var(--sans); opacity: 0.9; }
+      .x-seg input:checked + span small { display: block; }
+      .x-prod .x-more > summary { min-height: 36px; font-size: 13px; }
+      .x-prod .x-more { margin-top: -6px; }
+      .x-prod .x-switch { min-height: 44px; border-bottom: 0; font-size: 14px; }
+
+      /* Commission affilié personnalisée */
+      .x-chip--o { display: inline-flex; align-items: center; justify-content: center; }
+      .x-chip--o[hidden] { display: none; }
+      .x-chip--o svg { display: block; flex: none; }
+      .x-chip-in { position: relative; flex: 1 1 0; min-width: 0; display: block; }
+      .x-chip-in[hidden] { display: none; }
+      .x-chip-in input { display: block; width: 100%; min-width: 0; height: 36px; padding: 0 18px 0 8px; border: 1.5px solid var(--x-blue); border-radius: var(--r-pill); background: var(--x-focus-bg); color: var(--x-ink); font: 600 16px/1 var(--sans); font-variant-numeric: tabular-nums; -webkit-appearance: none; appearance: none; box-shadow: 0 0 0 3px rgba(0, 117, 235, 0.15); }
+      .x-chip-in input:focus { outline: none; }
+      .x-chip-in i { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: 600 13px/1 var(--sans); font-style: normal; color: var(--x-grey); pointer-events: none; }
+
+      /* Réglages : rythme commun */
+      #p-set .x-card { gap: 16px; padding: 22px 20px; }
+      #p-set .x-grid { gap: 16px 12px; }
+      #p-set .x-switch { align-items: center; gap: 16px; min-height: 0; padding: 18px 0; }
+      #p-set .x-switch:first-child { padding-top: 4px; }
+      #p-set .x-grid + .x-switches { border-top: 1px solid var(--x-line); }
+      #p-set .x-grid + .x-switches .x-switch:first-child { padding-top: 18px; }
+      #p-set .x-switch > span { display: grid; gap: 4px; min-width: 0; font: 600 15px/1.3 var(--sans); }
+      #p-set .x-switch small { margin: 0; font-weight: 400; line-height: 1.4; }
+      .x-kv { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; border-top: 1px solid var(--x-line); font: 600 15px/1.3 var(--sans); }
+      .x-kv[hidden] { display: none; }
+      .x-kv .x-affix { flex: none; width: 90px; }
+      .x-kv .x-input, .x-band .x-input { min-height: var(--tap); padding: 0 28px 0 12px; border-radius: 12px; text-align: right; }
+      .x-kv .x-affix i, .x-band .x-affix i { right: 12px; font-size: 15px; }
+      .x-switches + .x-kv { margin-top: -16px; }
+      #p-set .x-more { margin-top: -6px; }
+      #p-set .x-more > summary::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform var(--dur-quick) var(--ease-out); }
+      #p-set .x-more[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
+      #p-set .x-more .fineprint { margin: 0; }
+
+      /* Paliers de marge cible */
+      .x-bands { display: grid; margin: 0; padding: 0; list-style: none; }
+      .x-band { display: grid; grid-template-columns: minmax(0, 1fr) 90px var(--tap); align-items: center; gap: 10px; padding: 16px 0; border-bottom: 1px solid var(--x-line); background: var(--x-card); }
+      .x-band:first-child { padding-top: 4px; }
+      .x-band-l { display: grid; gap: 4px; justify-items: start; min-width: 0; }
+      .x-band-l small { font: 400 12px/1.35 var(--sans); color: var(--x-grey); }
+      .x-band-r { position: relative; min-height: 32px; padding: 0; border: 0; background: none; color: var(--x-ink); font: 600 15px/1.3 var(--sans); font-variant-numeric: tabular-nums; text-align: left; text-decoration: underline dashed var(--x-off); text-underline-offset: 4px; cursor: pointer; }
+      .x-band-r::after { content: ""; position: absolute; inset: -6px -8px; }
+      .x-band-r:hover { color: var(--x-blue-ink); }
+      .x-band-r:focus-visible, .x-band-x:focus-visible, .x-tlink:focus-visible { outline: 2px solid var(--x-blue); outline-offset: 2px; border-radius: 6px; }
+      span.x-band-r { text-decoration: none; cursor: default; }
+      .x-band-lo { display: flex; align-items: center; gap: 8px; font: 600 15px/1.3 var(--sans); }
+      .x-band-lo .x-affix { width: 90px; }
+      .x-band-x { display: grid; place-items: center; width: var(--tap); height: var(--tap); padding: 0; border: 0; border-radius: 50%; background: var(--x-field); color: var(--x-grey); font: 600 20px/1 var(--sans); cursor: pointer; }
+      .x-band-x:hover { background: var(--x-red-bg); color: var(--x-red-ink); }
+      .x-band-x:disabled { visibility: hidden; }
+      .x-band-acts { display: flex; justify-content: space-between; gap: 12px; margin-top: -8px; }
+      .x-tlink { min-height: var(--tap); padding: 0; border: 0; background: none; color: var(--x-blue-ink); font: 600 14px/1 var(--sans); cursor: pointer; }
+      .x-tlink.is-quiet { color: var(--x-grey); }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <main class="main x-shell">
+        <!-- CALCUL -->
+        <section class="x-panel" id="p-calc" role="tabpanel" aria-labelledby="t-calc">
+        <header class="x-top">
+          <img class="x-logo x-logo--light" src="margo-icon-512.png" alt="" width="32" height="32" />
+          <img class="x-logo x-logo--dark" src="margo-icon-dark.png" alt="" width="32" height="32" />
+          <div class="x-top-t">
+            <h1>Margo</h1>
+            <p>Ta marge sur TikTok Shop</p>
+          </div>
+          <button type="button" class="x-theme" id="themeBtn" aria-label="Passer en mode sombre">
+            <svg class="x-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
+            <svg class="x-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+        </header>
+
+              <div class="x-card x-prod">
+                <h2>Ton produit <button type="button" class="x-ghost" id="newBtn">Nouveau</button></h2>
+                <div class="x-field">
+                  <div class="x-linkrow">
+                    <input class="x-input" id="f-link" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" placeholder="Lien Alibaba, AliExpress…" aria-label="Lien du produit" />
+                    <button type="button" class="x-ghost" id="pasteBtn" hidden>Coller</button>
+                  </div>
+                  <small class="x-help" id="linkMsg" hidden></small>
+                  <label class="x-name"><img class="x-thumb" id="f-thumb" alt="" loading="lazy" referrerpolicy="no-referrer" decoding="async" hidden /><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><input id="f-name" type="text" autocomplete="off" enterkeyhint="next" placeholder="Nom du produit" aria-label="Nom du produit" /><span class="x-busy" id="nameBusy" role="status" hidden><span class="x-spin" aria-hidden="true"></span>Recherche du nom…</span></label>
+                  <small class="x-help is-auto" id="nameNote" hidden></small>
+                </div>
+                <div class="x-prices">
+                  <div class="x-field">
+                    <label for="f-cost">Prix d'achat livré</label>
+                    <div class="x-step">
+                      <button type="button" data-step="f-cost" data-d="-1" aria-label="Prix d'achat moins 1 €">−</button>
+                      <span class="x-affix"><input class="x-input" id="f-cost" type="text" inputmode="decimal" autocomplete="off" placeholder="2,16" aria-describedby="costHelp" /><i>€</i></span>
+                      <button type="button" data-step="f-cost" data-d="1" aria-label="Prix d'achat plus 1 €">+</button>
+                    </div>
+                    <small class="x-help" id="costHelp">livraison incluse / unité</small>
+                  </div>
+                  <div class="x-field">
+                    <label for="f-price">Ton prix de vente</label>
+                    <div class="x-step">
+                      <button type="button" data-step="f-price" data-d="-1" aria-label="Prix de vente moins 1 €">−</button>
+                      <span class="x-affix"><input class="x-input" id="f-price" type="text" inputmode="decimal" autocomplete="off" placeholder="24,90" aria-describedby="priceHelp" /><i>€</i></span>
+                      <button type="button" data-step="f-price" data-d="1" aria-label="Prix de vente plus 1 €">+</button>
+                    </div>
+                    <small class="x-help" id="priceHelp">prix affiché client</small>
+                  </div>
+                </div>
+                <div class="x-trapw" id="trapNote" aria-hidden="true" inert>
+                  <div>
+                    <div class="x-trap">
+                      <span id="trapTxt" role="status"></span>
+                      <div class="x-trap-acts">
+                        <button type="button" data-price="19.9">Rester à 19,90 €</button>
+                        <button type="button" id="trapUp" data-price="">—</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="x-sugs" id="sugRow" role="group" aria-label="Prix suggérés" hidden></div>
+                <fieldset class="x-seg" id="catSeg">
+                  <legend>Taille du colis (cm)</legend>
+                  <label><input type="radio" name="cat" value="XS" /><span>XS<small>33×23×4</small></span></label>
+                  <label><input type="radio" name="cat" value="S" /><span>S<small>40×30×15</small></span></label>
+                  <label><input type="radio" name="cat" value="M" /><span>M<small>50×40×30</small></span></label>
+                  <label><input type="radio" name="cat" value="L" /><span>L<small>61×46×46</small></span></label>
+                </fieldset>
+                <details class="x-more" id="dimBox">
+                  <summary>Mesures exactes</summary>
+                  <div class="x-more-body">
+                    <div class="x-grid">
+                      <label class="x-field"><span>Longueur (cm)</span><input class="x-input" id="f-L" type="text" inputmode="decimal" autocomplete="off" /></label>
+                      <label class="x-field"><span>Largeur (cm)</span><input class="x-input" id="f-W" type="text" inputmode="decimal" autocomplete="off" /></label>
+                      <label class="x-field"><span>Hauteur (cm)</span><input class="x-input" id="f-H" type="text" inputmode="decimal" autocomplete="off" /></label>
+                      <label class="x-field"><span>Poids brut (kg)</span><input class="x-input" id="f-kg" type="text" inputmode="decimal" autocomplete="off" /></label>
+                    </div>
+                    <p class="fineprint" id="catNote"></p>
+                    <p class="x-warn" id="catWarn" hidden></p>
+                  </div>
+                </details>
+                <label class="x-switch"><span>Vente via affilié</span><input type="checkbox" id="f-aff" /></label>
+                <div class="x-chips" id="affChips" role="group" aria-label="Commission affilié" hidden>
+                  <span class="x-chips-l">Commission</span>
+                  <div class="x-chips-row">
+                  <button type="button" class="x-chip" data-aff="10" aria-pressed="false">10 %</button>
+                  <button type="button" class="x-chip" data-aff="15" aria-pressed="false">15 %</button>
+                  <button type="button" class="x-chip" data-aff="20" aria-pressed="false">20 %</button>
+                  <button type="button" class="x-chip" data-aff="25" aria-pressed="false">25 %</button>
+                  <button type="button" class="x-chip x-chip--o" id="affOther" aria-pressed="false" aria-label="Autre commission"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M13.5 6.5l4 4"/></svg></button>
+                  <span class="x-chip-in" id="affEdit" hidden><input id="affIn" type="text" inputmode="decimal" autocomplete="off" aria-label="Commission affilié en %" /><i>%</i></span>
+                  </div>
+                </div>
+              </div>
+
+              <section class="x-hero" aria-live="polite" aria-label="Résultat">
+                <div class="x-hero-empty" id="sEmpty">
+                  <p>Entre le prix d'achat et ton prix de vente pour voir ta marge</p>
+                  <small id="sHint"></small>
+                </div>
+                <div class="x-hero-main" id="sFull" hidden>
+                  <p class="x-hero-cap">Ta marge</p>
+                  <p class="x-hero-name" id="sName">—</p>
+                  <p class="x-hero-label">Marge nette par vente</p>
+                  <p class="x-big" id="sMargin">—</p>
+                  <p class="x-rate" id="sRate"></p>
+                  <span class="x-vpill" id="sVerdict">En attente</span>
+                  <p class="x-reason" id="sReason"></p>
+                </div>
+              </section>
+
+              <div class="x-res" id="resMore" hidden>
+                <section class="x-tiles" aria-label="Chiffres clés">
+                  <div class="x-tile">
+                    <span class="x-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
+                    <div class="x-tile-h"><p class="x-tile-l">Ton prix de vente</p><button type="button" class="x-i" aria-expanded="false" aria-controls="tip1" aria-label="Explication : ton prix de vente">i</button></div>
+                    <p class="x-tile-v" id="tPrice">—</p>
+                    <p class="x-tile-s" id="tPriceSub">le prix affiché au client</p>
+                    <p class="x-tip" id="tip1" hidden>Le prix que tu as saisi : c'est ce que le client paie sur TikTok.</p>
+                  </div>
+                  <div class="x-tile">
+                    <span class="x-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></svg></span>
+                    <div class="x-tile-h"><p class="x-tile-l">Prix pour atteindre ta marge cible</p><button type="button" class="x-i" aria-expanded="false" aria-controls="tip2" aria-label="Explication : prix pour atteindre ta marge cible">i</button></div>
+                    <p class="x-tile-v" id="sRec">—</p>
+                    <p class="x-tile-s" id="sTarget"></p>
+                    <p class="x-tip" id="tip2" hidden>Le plus petit prix en x,90 € qui te laisse, après tous les frais, la marge cible de son palier (réglable dans Réglages).</p>
+                  </div>
+                  <div class="x-tile">
+                    <span class="x-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+                    <div class="x-tile-h"><p class="x-tile-l" id="tOtherL">Marge avec affilié</p><button type="button" class="x-i" aria-expanded="false" aria-controls="tip3" aria-label="Explication : marge dans l'autre scénario">i</button></div>
+                    <p class="x-tile-v" id="tOther">—</p>
+                    <p class="x-tile-s" id="tOtherSub"></p>
+                    <p class="x-tip" id="tip3" hidden></p>
+                  </div>
+                  <p class="x-cmp" id="cmpLine" hidden></p>
+                </section>
+                <button type="button" class="x-apply" id="applyBtn" hidden><span id="applyTxt">Appliquer ce prix</span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+              </div>
+
+              <button type="button" class="x-primary" id="saveBtn">Enregistrer le produit</button>
+              <p class="x-status" id="saveMsg" role="status"></p>
+
+              <details class="x-fold">
+                <summary>Voir le détail du calcul</summary>
+                <div class="x-fold-body">
+                  <p><span class="x-badge" id="vatBadge">Franchise en base — TVA non facturée</span></p>
+                  <ul class="x-tx" id="wf"></ul>
+                </div>
+              </details>
+
+              <details class="x-fold">
+                <summary>Avec ou sans affilié</summary>
+                <div class="x-fold-body">
+                  <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th scope="col">Au prix retenu</th><th scope="col">Avec affilié</th><th scope="col">Vente directe</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th scope="row">Marge nette</th><td class="num" id="cA-m">—</td><td class="num" id="cD-m">—</td></tr>
+                      <tr><th scope="row">Taux de marge</th><td id="cA-r">—</td><td id="cD-r">—</td></tr>
+                      <tr class="is-highlight"><th scope="row">Prix pour ta marge cible</th><td class="num" id="cA-rec">—</td><td class="num" id="cD-rec">—</td></tr>
+                      <tr><th scope="row">Prix plancher <small>marge 0</small></th><td id="cA-fl">—</td><td id="cD-fl">—</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="fineprint" id="targetNote"></p>
+                </div>
+              </details>
+
+              <details class="x-fold">
+                <summary>Simuler une commande</summary>
+                <div class="x-fold-body">
+                <label class="x-field"><span>Quantité commandée</span><input class="x-input" id="f-qty" type="text" inputmode="numeric" autocomplete="off" /></label>
+                <section class="stats">
+                  <div class="stat"><span class="stat__fig" id="simInv">—</span><span class="stat__label">Investissement</span></div>
+                  <div class="stat"><span class="stat__fig" id="simSmp">—</span><span class="stat__label" id="simSmpL">Échantillons affiliés</span></div>
+                  <div class="stat"><span class="stat__fig" id="simBen">—</span><span class="stat__label" id="simBenL">Bénéfice potentiel</span></div>
+                  <div class="stat"><span class="stat__fig" id="simBe">—</span><span class="stat__label" id="simBeL">Ventes pour rembourser</span></div>
+                </section>
+                <p class="fineprint" id="simNote"></p>
+                <div class="table-wrap">
+                  <table>
+                    <caption>Trois prix autour du prix pour ta marge cible</caption>
+                    <thead>
+                      <tr><th scope="col">Prix de vente</th><th scope="col">Marge / unité</th><th scope="col">Taux</th><th scope="col">Bénéfice commande</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><th scope="row" id="sc0p">—</th><td class="num" id="sc0m">—</td><td id="sc0r">—</td><td id="sc0b">—</td></tr>
+                      <tr class="is-highlight"><th scope="row" id="sc1p">—</th><td class="num" id="sc1m">—</td><td id="sc1r">—</td><td id="sc1b">—</td></tr>
+                      <tr><th scope="row" id="sc2p">—</th><td class="num" id="sc2m">—</td><td id="sc2r">—</td><td id="sc2b">—</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                </div>
+              </details>
+        </section>
+
+        <!-- MES PRODUITS -->
+        <section class="x-panel" id="p-list" role="tabpanel" aria-labelledby="t-list" hidden>
+          <div class="x-card">
+            <h2>Mes produits <button type="button" class="x-ghost" id="csvBtn">Exporter CSV</button></h2>
+            <p class="fineprint" id="noSaveNote" hidden>Enregistrement indisponible dans cet aperçu — ouvre la page dans Safari pour garder tes produits</p>
+            <p class="fineprint" id="saveNote">Enregistré sur cet iPhone (dans l'app ajoutée à l'écran d'accueil). Pense à exporter en CSV pour une sauvegarde.</p>
+            <p class="fineprint">Touche une ligne pour la recharger, l'icône lien pour ouvrir la page du produit, glisse à gauche pour supprimer.</p>
+            <ul class="x-list" id="plist"></ul>
+          </div>
+        </section>
+
+        <!-- RÉGLAGES -->
+        <section class="x-panel" id="p-set" role="tabpanel" aria-labelledby="t-set" hidden>
+          <div class="x-card">
+            <h2>Installer sur l'iPhone</h2>
+            <p>Ouvre ce lien dans Safari → bouton Partager → Sur l'écran d'accueil.</p>
+            <p class="fineprint" id="storeNote"></p>
+          </div>
+
+          <div class="x-card">
+            <h2>TVA</h2>
+            <div class="x-switches">
+              <label class="x-switch"><span>TVA facturée aux clients<small>Non = franchise en base : prix HT = prix de vente</small></span><input type="checkbox" data-sc="tvaOn" /></label>
+              <label class="x-switch"><span>TVA sur les frais TikTok<small>Non récupérable : ajoute <span class="x-tvaPct">20</span> % aux frais TikTok/FBT</small></span><input type="checkbox" data-sc="tvaFees" /></label>
+            </div>
+            <label class="x-kv" id="tvaRow" hidden><span>Taux de TVA</span><span class="x-affix"><input class="x-input" data-s="tva" type="text" inputmode="decimal" aria-label="Taux de TVA en %" /><i>%</i></span></label>
+            <details class="x-more">
+              <summary>En savoir plus</summary>
+              <p class="fineprint">À activer si tu dépasses le seuil de la franchise. Frais TikTok/FBT : commission TikTok, frais d'exploitation, frais d'expédition, haute saison, stockage et expédition d'échantillons.</p>
+            </details>
+          </div>
+
+          <div class="x-card">
+            <h2>Commissions</h2>
+            <div class="x-grid">
+              <label class="x-field"><span>Commission TikTok Shop (%)</span><input class="x-input" data-s="comm" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Commission affilié (%)</span><input class="x-input" data-s="aff" type="text" inputmode="decimal" /></label>
+            </div>
+            <p class="fineprint">Calculées sur le prix de vente. TikTok : 4 % pendant 60 jours pour un nouveau vendeur éligible.</p>
+          </div>
+
+          <div class="x-card">
+            <h2>Coûts appliqués à chaque produit</h2>
+            <div class="x-grid">
+              <label class="x-field"><span>Droits de douane (%)</span><input class="x-input" data-s="duty" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Étiquetage (€/unité)</span><input class="x-input" data-s="label" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Provision retours/casse (%)</span><input class="x-input" data-s="ret" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Frais divers par vente (€)</span><input class="x-input" data-s="divers" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Haute saison (€/colis)</span><input class="x-input" data-s="hs" type="text" inputmode="decimal" /></label>
+            </div>
+            <div class="x-switches">
+              <label class="x-switch"><span>Haute saison appliquée<small>Activée d'office du 1er nov. au 31 déc.</small></span><input type="checkbox" data-sc="hsOn" /></label>
+              <label class="x-switch"><span>Value+<small>Expédition offerte au client aussi sous 20 € · −0,20 € jusqu'au 31/10/2026, tarif Standard dès le 1er nov. 2026</small></span><input type="checkbox" data-sc="vp" /></label>
+            </div>
+            <p class="fineprint">Coût de revient = prix d'achat × (1 + douane) + étiquetage. Frais divers : pub, emballage premium, notice…</p>
+          </div>
+
+          <div class="x-card">
+            <h2>Marge cible par palier de prix</h2>
+            <ul class="x-bands" id="bandList" aria-label="Paliers : prix de vente et marge nette cible par unité"></ul>
+            <div class="x-band-acts">
+              <button type="button" class="x-tlink" id="bandAdd">+ Ajouter un palier</button>
+              <button type="button" class="x-tlink is-quiet" id="bandReset">Réinitialiser</button>
+            </div>
+            <p class="fineprint">Marge nette cible en € par unité. Touche une fourchette pour changer le prix où elle commence. Un prix entre deux paliers prend le palier qui commence en dessous.</p>
+          </div>
+
+          <div class="x-card">
+            <h2>Grille FBT France <small class="x-meta">HT · 08/10/2026</small></h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th scope="col">Catégorie</th><th scope="col">Frais d'exploitation €</th><th scope="col">Frais d'expédition €</th><th scope="col">Value+ € <small>jusqu'au 31/10/2026</small></th><th scope="col">Expédition échantillon €</th></tr></thead>
+                <tbody id="tierBody"></tbody>
+              </table>
+            </div>
+            <p class="fineprint">Catégorie = la plus petite où les 3 dimensions (triées) et le poids brut tiennent. Commande ≥ 20 € : le vendeur paie les frais d'expédition ; en dessous, le client les paie, sauf avec Value+. Value+ : tarif Standard dès le 1er nov. 2026. Frais d'exploitation toujours dus. Au-delà de L : hors FBT.</p>
+          </div>
+
+          <div class="x-card">
+            <h2>Stockage et échantillons</h2>
+            <div class="x-grid">
+              <label class="x-field"><span>Durée moyenne en stock (jours)</span><input class="x-input" data-s="days" type="text" inputmode="numeric" /></label>
+              <label class="x-field"><span>Échantillons affiliés offerts</span><input class="x-input" data-s="samples" type="text" inputmode="numeric" /></label>
+            </div>
+            <div class="x-grid">
+              <label class="x-field"><span>0–30 j (€/m³/jour)</span><input class="x-input" data-st="0" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>31–90 j</span><input class="x-input" data-st="1" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>91–120 j</span><input class="x-input" data-st="2" type="text" inputmode="decimal" /></label>
+              <label class="x-field"><span>Plus de 120 j</span><input class="x-input" data-st="3" type="text" inputmode="decimal" /></label>
+            </div>
+            <p class="fineprint">60 premiers jours gratuits : stockage = 0 € jusqu'à 60 j. Au-delà, seuls les jours après le 60e sont facturés : volume (min. 0,001 m³) × jours × tarif de leur tranche. Un échantillon affilié coûte le produit + les frais d'exploitation + l'expédition échantillon (+ haute saison du 1er nov. au 31 déc.).</p>
+          </div>
+
+          <div class="x-card"><button type="button" class="x-ghost" id="resetBtn" style="justify-self: start">Réinitialiser les réglages</button></div>
+        </section>
+
+        <footer class="foot">
+          <p>Grille FBT France du 08/10/2026 (frais d'exploitation + frais d'expédition) — à mettre à jour dans Réglages si TikTok les change.</p>
+        </footer>
+      </main>
+
+      <nav class="x-tabbar" role="tablist" aria-label="Sections de l'app">
+        <button type="button" role="tab" id="t-calc" data-tab="p-calc" aria-selected="true"><span class="x-tab-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M8.5 7h7"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18.5h.01M12 18.5h.01M15.5 18.5h.01" stroke-width="2.4"/></svg></span>Calcul</button>
+        <button type="button" role="tab" id="t-list" data-tab="p-list" aria-selected="false"><span class="x-tab-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span class="x-count" id="pCount"></span></span>Mes produits</button>
+        <button type="button" role="tab" id="t-set" data-tab="p-set" aria-selected="false"><span class="x-tab-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>Réglages</button>
+      </nav>
+    </div>
+    <script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- Stockage local, toujours protégé ---------- */
+  var canSave = (function () { try { var k = "__bm"; localStorage.setItem(k, "1"); localStorage.removeItem(k); return true; } catch (e) { return false; } })();
+  function lsGet(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+
+  /* ---------- Valeurs par défaut ---------- */
+  var DEF = {
+    tva: 20, tvaOn: false, tvaFees: false, comm: 9, aff: 20, duty: 4, label: 0.2, ret: 0, divers: 0, hs: 0.5, hsOn: null, vp: false, days: 30, samples: 5,
+    storage: [0.58, 0.85, 1.06, 1.33],
+    tiers: [
+      { cat: "XS", max: 0.5, prep: 1.39, ship: 2.57, vp: 2.37, smp: 2.60 },
+      { cat: "S", max: 2, prep: 1.55, ship: 3.10, vp: 2.90, smp: 3.39 },
+      { cat: "M", max: 2, prep: 2.15, ship: 3.39, vp: 3.19, smp: 3.39 },
+      { cat: "M", max: 5, prep: 2.15, ship: 4.16, vp: 3.96, smp: 4.16 },
+      { cat: "M", max: 10, prep: 2.15, ship: 6.89, vp: 6.69, smp: 6.89 },
+      { cat: "L", max: 10, prep: 3.09, ship: 6.89, vp: 6.69, smp: 6.89 },
+      { cat: "L", max: 30, prep: 3.09, ship: 12.49, vp: 12.29, smp: 12.49 }
+    ],
+    bands: [{ lo: 0, t: 10 }, { lo: 30, t: 12 }, { lo: 40, t: 14 }, { lo: 60, t: 20 }, { lo: 100, t: 30 }, { lo: 140, t: 40 }, { lo: 200, t: 55 }]
+  };
+  var CATS = { XS: [33, 23, 4], S: [40, 30, 15], M: [50, 40, 30], L: [61, 46, 46] };
+  var ORDER = ["XS", "S", "M", "L"];
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function loadSettings() {
+    var s = lsGet("bm_settings"), d = clone(DEF);
+    if (!s || typeof s !== "object") return d;
+    Object.keys(d).forEach(function (k) {
+      if (k === "bands") {
+        var ok = Array.isArray(s.bands) && s.bands.length > 0 && s.bands.every(function (b) { return b && typeof b.lo === "number" && isFinite(b.lo) && typeof b.t === "number" && isFinite(b.t); });
+        if (ok) { d.bands = s.bands.slice().sort(function (a, b) { return a.lo - b.lo; }); d.bands[0].lo = 0; }
+      } else if (k === "tiers" || k === "storage") {
+        if (Array.isArray(s[k]) && s[k].length === d[k].length) d[k] = s[k];
+      } else if (typeof d[k] === "boolean" || k === "hsOn") {
+        if (typeof s[k] === "boolean") d[k] = s[k];
+      } else if (typeof s[k] === "number" && isFinite(s[k])) d[k] = s[k];
+    });
+    return d;
+  }
+  var S = loadSettings();
+
+  function isSeason() { return new Date().getMonth() >= 10; }
+  function hsActive() { return S.hsOn == null ? isSeason() : !!S.hsOn; }
+  function blankProduct() {
+    return { link: "", nameAuto: false, name: "", image: "", cost: null, L: null, W: null, H: null, kg: null, cat: "XS", price: null, qty: 100, aff: true };
+  }
+  var F = Object.assign(blankProduct(), lsGet("bm_form") || {});
+  var PRODUCTS = lsGet("bm_products");
+  if (!Array.isArray(PRODUCTS)) PRODUCTS = [];
+
+  /* ---------- Nombres au format français ---------- */
+  var nfE = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+  function eur(v) { return v == null || !isFinite(v) ? "—" : nfE.format(v); }
+  function nf(v, d) { return v == null || !isFinite(v) ? "—" : v.toLocaleString("fr-FR", { minimumFractionDigits: d || 0, maximumFractionDigits: d == null ? 2 : d }); }
+  function pct(v) { return v == null || !isFinite(v) ? "—" : (v * 100).toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " %"; }
+  function num(s) {
+    if (typeof s === "number") return isFinite(s) ? s : null;
+    if (s == null) return null;
+    var t = String(s).replace(/[\s\u00a0\u202f€%]/g, "").replace(",", ".");
+    if (t === "" || t === "." || t === "-") return null;
+    var v = parseFloat(t);
+    return isFinite(v) ? v : null;
+  }
+  function toInput(v) { return v == null || v === "" ? "" : String(v).replace(".", ","); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function sign(v) { return v > 0.004 ? "− " + eur(v) : eur(0); }
+
+  /* ---------- Formulaire ---------- */
+  var NUMF = ["cost", "L", "W", "H", "kg", "price", "qty"];
+  var CHK = ["aff"];
+  function setChip(cat) { document.querySelectorAll('#catSeg input').forEach(function (r) { r.checked = r.value === cat; }); }
+  function fillForm() {
+    $("f-link").value = F.link || "";
+    $("f-name").value = F.name || "";
+    stopTitle();
+    showThumb(F.image);
+    nameNote(F.nameAuto && F.name ? "Nom récupéré depuis le lien — modifiable" : "");
+    $("linkMsg").hidden = true;
+    NUMF.forEach(function (k) { $("f-" + k).value = toInput(F[k]); });
+    if (!F.cat) F.cat = "XS";
+    CHK.forEach(function (k) { $("f-" + k).checked = !!F[k]; });
+    $("dimBox").open = F.cat === "auto";
+  }
+  function readForm() {
+    F.link = $("f-link").value.trim();
+    F.name = $("f-name").value;
+    NUMF.forEach(function (k) { F[k] = num($("f-" + k).value); });
+    CHK.forEach(function (k) { F[k] = $("f-" + k).checked; });
+  }
+
+  /* ---------- Lien produit → nom (lecture de l'URL, sans réseau) ---------- */
+  function parseUrl(raw) {
+    var s = String(raw || "").trim(); if (!s) return null;
+    var m = s.match(/https?:\/\/[^\s<>"']+/i);
+    if (m) s = m[0]; else if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(s)) s = "https://" + s; else return null;
+    try { var u = new URL(s); return /^https?:$/.test(u.protocol) ? u : null; } catch (e) { return null; }
+  }
+  function safeHref(raw) { var u = parseUrl(raw); return u ? u.href : ""; }
+  var SITES = { alibaba: "Alibaba", aliexpress: "AliExpress", "1688": "1688", amazon: "Amazon", tiktok: "TikTok", temu: "Temu", cdiscount: "Cdiscount", ebay: "eBay", shein: "Shein" };
+  var GENERIC = /^(product|products|product-detail|item|items|dp|gp|offer|offers|video|videos|view|share|shop|store|detail|details|goods|aw|ref|link|redirect|search|category|collections?|pdp|en|fr|us|uk|de)$/i;
+  function tcase(w) { return /^[A-Z0-9]{2,5}$/.test(w) ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+  function nameFromUrl(raw) {
+    var u = parseUrl(raw); if (!u) return "";
+    var host = u.hostname.replace(/^(www|m|fr|es|de|it|en|vt|shop|detail|item)\./i, "");
+    var parts = host.split("."), key = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+    if (/^(co|com)$/.test(key) && parts.length > 2) key = parts[parts.length - 3];
+    var site = SITES[key.toLowerCase()] || host;
+    var best = null, bestN = 0;
+    u.pathname.split("/").forEach(function (seg) {
+      try { seg = decodeURIComponent(seg); } catch (e) {}
+      if (!seg || seg.charAt(0) === "@" || GENERIC.test(seg)) return;
+      seg = seg.replace(/\.(html?|php|aspx?)$/i, "").replace(/[_-]\d{5,}$/, "").replace(/[-_][a-z]$/i, "");
+      var words = seg.split(/[-_+\s.]+/).filter(function (w) { return w && !/^\d{5,}$/.test(w); });
+      var alpha = words.filter(function (w) { return /^[A-Za-zÀ-ÿ]+$/.test(w); }).length;
+      if (alpha >= 2 && alpha >= words.length * 0.6 && alpha > bestN) { best = words; bestN = alpha; }
+    });
+    if (best) return cleanTitle(best.map(tcase).join(" "));
+    return "";
+  }
+
+  /* Nom réel du produit : recherche du titre via le service margo-title */
+  var TITLE_API = "https://vmi3182887.contaboserver.net/webhook/margo-title?url=";
+  var titleTimer = null, titleCtl = null, titleSeq = 0;
+  function decodeHtml(s) { var ta = document.createElement("textarea"); ta.innerHTML = String(s || ""); return ta.value; }
+  function cleanTitle(raw) {
+    var t = decodeHtml(raw).replace(/[\s\u00a0]+/g, " ").trim();
+    t = t.replace(/\s*[-–|]\s*Buy\b.*?Product on Alibaba\.com.*$/i, "")
+      .replace(/\s*[-–|]\s*Alibaba\.com.*$/i, "")
+      .replace(/\s*[-–|]\s*AliExpress\b.*$/i, "")
+      .replace(/\s*:\s*Amazon\.(fr|com|de|es|it|co\.uk)\b.*$/i, "")
+      .replace(/\s*,\s*/g, ", ").replace(/\s+/g, " ").replace(/^[\s,:;|-]+|[\s,:;|-]+$/g, "");
+    if (/[A-ZÀ-Þ]/.test(t) && t === t.toUpperCase()) t = t.toLowerCase().replace(/(^|[\s,(/-])([a-zà-ÿ])/g, function (m, a, b) { return a + b.toUpperCase(); });
+    if (t.length > 70) { var cut = t.slice(0, 70), sp = cut.lastIndexOf(" "); t = (sp > 30 ? cut.slice(0, sp) : cut).replace(/[\s,;:.-]+$/, "") + "…"; }
+    return t;
+  }
+  function nameNote(txt) { var n = $("nameNote"); n.textContent = txt || ""; n.hidden = !txt; }
+  function stopTitle() {
+    clearTimeout(titleTimer); titleSeq++;
+    if (titleCtl) { try { titleCtl.abort(); } catch (e) {} titleCtl = null; }
+    $("nameBusy").hidden = true;
+  }
+  function canAutoName() { return F.nameAuto || !$("f-name").value.trim(); }
+  function setAutoName(n, note) { $("f-name").value = n; F.nameAuto = true; nameNote(note); render(); }
+  function fallbackName(link) {
+    var n = nameFromUrl(link);
+    if (n) setAutoName(n, "Nom déduit du lien — modifiable"); else setAutoName("", "Nom introuvable — tape-le");
+  }
+  /* Photo du produit (renvoyée par margo-title) */
+  function imgUrl(raw) {
+    var s = String(raw || "").trim(); if (!s) return "";
+    if (s.indexOf("//") === 0) s = "https:" + s;
+    try { var u = new URL(s); return /^https?:$/.test(u.protocol) ? u.href : ""; } catch (e) { return ""; }
+  }
+  function showThumb(url) {
+    var im = $("f-thumb"); url = imgUrl(url);
+    im.classList.remove("is-in");
+    if (!url) { im.hidden = true; im.removeAttribute("src"); return; }
+    im.hidden = false;
+    if (im.getAttribute("src") !== url) im.src = url;
+    else if (im.complete && im.naturalWidth) im.classList.add("is-in");
+  }
+  function setImage(url) { F.image = imgUrl(url); showThumb(F.image); }
+  function lookupTitle(link, keepName) {
+    var seq = ++titleSeq, ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    var to = ctl ? setTimeout(function () { ctl.abort(); }, 15000) : null;
+    titleCtl = ctl; if (!keepName) $("nameBusy").hidden = false;
+    function live() { clearTimeout(to); if (seq !== titleSeq) return false; titleCtl = null; $("nameBusy").hidden = true; return true; }
+    function done() { return !keepName && canAutoName(); }
+    fetch(TITLE_API + encodeURIComponent(link), ctl ? { signal: ctl.signal } : {})
+      .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
+      .then(function (d) {
+        if (!live()) return;
+        if (d && d.ok && d.image) { setImage(d.image); render(); }
+        var t = d && d.ok && d.title ? cleanTitle(d.title) : "";
+        if (!done()) return;
+        if (t) setAutoName(t, "Nom récupéré depuis le lien — modifiable"); else fallbackName(link);
+      })
+      .catch(function () { if (live() && done()) fallbackName(link); });
+  }
+  function onLink() {
+    var el = $("f-link"), raw = el.value, shared = "";
+    stopTitle();
+    if (F.image) setImage("");
+    if (!raw.trim()) { $("linkMsg").hidden = true; return; }
+    var m = raw.match(/https?:\/\/[^\s<>"']+/i);
+    if (m && raw.trim() !== m[0]) {
+      var rest = raw.replace(m[0], " ").replace(/\s+/g, " ").trim();
+      if (rest.length >= 8) shared = cleanTitle(rest);
+      el.value = m[0];
+    }
+    var link = el.value.trim();
+    if (!parseUrl(link)) { $("linkMsg").hidden = false; $("linkMsg").textContent = "Lien non reconnu : colle l'adresse complète (https://…)."; return; }
+    $("linkMsg").hidden = true;
+    var keep = !canAutoName();
+    if (!keep && shared) { setAutoName(shared, "Nom récupéré depuis le lien — modifiable"); keep = true; }
+    titleTimer = setTimeout(function () { lookupTitle(link, keep); }, 400);
+  }
+
+  /* ---------- Catégorie FBT ---------- */
+  function catMax(cat) { var m = 0; S.tiers.forEach(function (t) { if (t.cat === cat) m = Math.max(m, t.max); }); return m; }
+  function tierLabel(i) {
+    var t = S.tiers[i], lo = 0;
+    for (var j = i - 1; j >= 0; j--) if (S.tiers[j].cat === t.cat) { lo = S.tiers[j].max; break; }
+    return t.cat + " · " + nf(lo) + "–" + nf(t.max) + " kg";
+  }
+  function pickTier() {
+    var dims = [F.L || 0, F.W || 0, F.H || 0].sort(function (a, b) { return b - a; });
+    var kg = F.kg || 0, warn = [];
+    function fitsDims(c) { var l = CATS[c]; return dims[0] <= l[0] + 1e-9 && dims[1] <= l[1] + 1e-9 && dims[2] <= l[2] + 1e-9; }
+    function fits(c) { return fitsDims(c) && kg <= catMax(c) + 1e-9; }
+    var detected = null;
+    for (var i = 0; i < ORDER.length; i++) if (fits(ORDER[i])) { detected = ORDER[i]; break; }
+    if (F.cat === "auto" && (!F.L || !F.W || !F.H || !F.kg)) warn.push("Renseigne les 3 dimensions et le poids pour une taille fiable.");
+    var chosen = F.cat !== "auto" ? F.cat : detected, hors = !detected, idx = -1;
+    if (!chosen) { chosen = "L"; warn.push("Hors FBT : le colis dépasse la catégorie L (61×46×46 cm, 30 kg). Calcul estimé avec le tarif L 10–30 kg."); }
+    else if (F.cat !== "auto" && !fits(chosen)) warn.push("Le colis dépasse la catégorie " + chosen + " choisie (détectée : " + (detected || "hors FBT") + ").");
+    S.tiers.forEach(function (t, j) { if (t.cat === chosen && idx < 0 && kg <= t.max + 1e-9) idx = j; });
+    if (idx < 0) S.tiers.forEach(function (t, j) { if (t.cat === chosen) idx = j; });
+    var vol = Math.max((F.L || 0) * (F.W || 0) * (F.H || 0) / 1e6, 0.001);
+    return { detected: detected, chosen: chosen, hors: hors, idx: idx, tier: S.tiers[idx], warn: warn, vol: vol };
+  }
+  function storageRate(days) { var s = S.storage; return days <= 30 ? s[0] : days <= 90 ? s[1] : days <= 120 ? s[2] : s[3]; }
+  var FREE_DAYS = 60;
+  /* € par m³ : seuls les jours au-delà de 60 sont facturés, chacun au tarif de sa tranche */
+  function storageM3(days) {
+    var s = S.storage, a = Math.max(Math.min(days, 90) - FREE_DAYS, 0), b = Math.max(Math.min(days, 120) - 90, 0), c = Math.max(days - 120, 0);
+    return a * s[1] + b * s[2] + c * s[3];
+  }
+  /* Value+ : −0,20 € jusqu'au 31/10/2026, puis tarif Standard dès le 1er nov. 2026 */
+  function vpEnded() { return new Date() >= new Date(2026, 10, 1); }
+
+  /* ---------- Calcul ---------- */
+  var C; // contexte du calcul courant
+  function buildCtx() {
+    var info = pickTier(), t = info.tier, days = Math.max(S.days || 0, 0);
+    var cost = (F.cost || 0) * (1 + (S.duty || 0) / 100) + (S.label || 0);
+    var k = S.tvaFees ? 1 + (S.tva || 0) / 100 : 1; // TVA non récupérable sur les frais TikTok/FBT
+    return {
+      info: info, tier: t, cost: cost, k: k, prep: t.prep * k, ship: t.ship * k, vpShip: (vpEnded() ? t.ship : t.vp) * k, smp: t.smp * k,
+      sto: info.vol * storageM3(days) * k, days: days,
+      hs: hsActive() ? (S.hs || 0) * k : 0, div: S.divers || 0, tva: S.tvaOn ? (S.tva || 0) / 100 : 0,
+      comm: (S.comm || 0) / 100 * k, aff: (S.aff || 0) / 100, ret: (S.ret || 0) / 100, vp: !!S.vp
+    };
+  }
+  function shipFor(P) { return C.vp ? C.vpShip : (P >= 20 - 1e-9 ? C.ship : 0); }
+  function unit(P, affOn) {
+    var ht = P / (1 + C.tva), ship = shipFor(P);
+    var comm = C.comm * P, aff = affOn ? C.aff * P : 0, ret = C.ret * P;
+    var m = ht - C.cost - C.prep - ship - C.hs - C.sto - comm - aff - ret - C.div;
+    return { P: P, tvaAmt: P - ht, ht: ht, ship: ship, comm: comm, aff: aff, ret: ret, m: m, rate: ht > 0 ? m / ht : null, roi: C.cost > 0 ? m / C.cost : null };
+  }
+  function bandIdx(P) { var i = 0; S.bands.forEach(function (b, j) { if (P >= b.lo - 1e-9) i = j; }); return i; }
+  function target(P) { return S.bands[bandIdx(P)].t || 0; }
+  function bandLabel(i) {
+    var b = S.bands[i], n = S.bands[i + 1];
+    if (i === 0) return n ? "< " + nf(n.lo) + " €" : "Tous les prix";
+    if (!n) return "≥ " + nf(b.lo) + " €";
+    return nf(b.lo) + " – " + nf(n.lo - 0.01, 2) + " €";
+  }
+  function den(affOn) { return 1 / (1 + C.tva) - C.comm - (affOn ? C.aff : 0) - C.ret; }
+  function fixedCost(shipPaid) { return C.cost + C.prep + C.hs + C.sto + C.div + (C.vp ? C.vpShip : shipPaid ? C.ship : 0); }
+  function up90(P) { return Math.max(Math.ceil(P - 0.9 - 1e-9), 0) + 0.9; }
+  function recommend(affOn) {
+    var d = den(affOn); if (d <= 0) return null;
+    var best = null;
+    S.bands.forEach(function (b, i) {
+      var hi = S.bands[i + 1] ? S.bands[i + 1].lo : Infinity;
+      [false, true].forEach(function (over) {
+        var lo = Math.max(b.lo, over ? 20 : 0), top = Math.min(hi, over ? Infinity : 20);
+        if (lo >= top) return;
+        var P = Math.max((b.t + fixedCost(over)) / d, lo, 0.01);
+        if (P >= top) return;
+        var R = up90(P);
+        for (var k = 0; k < 400; k++) {
+          if (unit(R, affOn).m >= target(R) - 1e-9) { if (best === null || R < best) best = R; break; }
+          R += 1;
+        }
+      });
+    });
+    return best === null ? null : Math.round(best * 100) / 100;
+  }
+  function floorPrice(affOn) {
+    var d = den(affOn); if (d <= 0) return null;
+    function cent(v) { return Math.ceil(v * 100 - 1e-6) / 100; }
+    var Pu = cent(fixedCost(false) / d);
+    if (Pu < 20 && unit(Pu, affOn).m >= -1e-9) return Pu;
+    return cent(Math.max(fixedCost(true) / d, 20));
+  }
+  function verdict(P, uA, uD) {
+    var t = target(P), band = bandLabel(bandIdx(P)), v;
+    if (uA.m >= t - 1e-9) v = { cls: "good", txt: "Intéressant", why: "Cible de " + eur(t) + " atteinte même avec affilié (" + eur(uA.m) + ")." };
+    else if (uD.m >= t - 1e-9) v = { cls: "mid", txt: "Limite", why: "Cible de " + eur(t) + " atteinte seulement sans affilié." };
+    else if (uA.m >= 0.7 * t - 1e-9) v = { cls: "mid", txt: "Limite", why: "Avec affilié : " + pct(t ? uA.m / t : 0) + " de la cible de " + eur(t) + "." };
+    else v = { cls: "bad", txt: "À éviter", why: "Avec affilié : moins de 70 % de la cible de " + eur(t) + "." };
+    v.band = band;
+    return v;
+  }
+  /* Zone piège : dès 20 €, l'expédition FBT passe à ta charge */
+  function r2(v) { return Math.round(v * 100) / 100; }
+  function trapZone(affOn) {
+    if (C.vp || !(C.ship > 0.004)) return null;
+    var m0 = unit(19.9, affOn).m;
+    for (var k = 0; k < 400; k++) { var R = r2(20.9 + k); if (unit(R, affOn).m >= m0 - 1e-9) return { hi: R, ship: C.ship }; }
+    return null;
+  }
+  function inZone(P, z) { return !!z && P >= 20 - 1e-9 && P < z.hi - 1e-9; }
+  function signed(m) { return (m < 0 ? "− " : "+") + eur(Math.abs(m)); }
+  function renderPicks() {
+    var row = $("sugRow");
+    if (!(F.cost > 0)) { row.hidden = true; row.innerHTML = ""; return; }
+    var aff = !!F.aff, z = trapZone(aff), P = F.price, list = [], R, k;
+    function add(label, p) {
+      if (p == null || !(p > 0)) return;
+      p = r2(p);
+      for (var i = 0; i < list.length; i++) if (Math.abs(list[i].p - p) < 0.005) { list[i].label = label; return; }
+      list.push({ label: label, p: p });
+    }
+    var fl = floorPrice(aff), rec = recommend(aff);
+    if (fl != null) {
+      for (R = up90(fl), k = 0; k < 400; k++, R = r2(R + 1)) if (unit(R, aff).m >= -1e-9) { add("Minimum", R); break; }
+    }
+    add("Cible", rec);
+    if (rec != null || fl != null) {
+      for (R = rec || up90(fl), k = 0; k < 400; k++, R = r2(R + 1)) {
+        if (inZone(R, z)) R = z.hi;
+        if (unit(R, aff).m >= 1.3 * target(R) - 1e-9) { add("Confort", R); break; }
+      }
+    }
+    row.hidden = !list.length;
+    row.innerHTML = list.map(function (s) {
+      var uA = unit(s.p, true), uD = unit(s.p, false), u = aff ? uA : uD, cls = verdict(s.p, uA, uD).cls;
+      var on = P != null && Math.abs(P - s.p) < 0.005;
+      return '<button type="button" class="x-sug" data-price="' + s.p + '" aria-pressed="' + on + '" aria-label="' + esc(s.label + " : " + eur(s.p) + ", marge " + signed(u.m)) + '"><small>' + esc(s.label) + "</small><b>" + esc(eur(s.p)) + '</b><span data-v="' + cls + '">' + esc(signed(u.m)) + "</span></button>";
+    }).join("");
+  }
+  /* Évaluée seulement sur un prix validé (blur, change, −/+, prix rapides), ou 600 ms après la frappe */
+  var trapTimer = null;
+  function evalTrap() {
+    clearTimeout(trapTimer);
+    var w = $("trapNote"), z = F.cost > 0 && C ? trapZone(!!F.aff) : null, P = F.price, on = !!(P > 0 && inZone(P, z));
+    if (on) {
+      setText("trapTxt", "Dès 20 €, l'expédition FBT (" + eur(z.ship) + ") passe à ta charge : tu gagnes moins qu'à 19,90 €.");
+      var up = $("trapUp"); up.setAttribute("data-price", String(z.hi)); up.textContent = "Passer à " + eur(z.hi);
+    }
+    if (w.classList.contains("is-open") === on) return;
+    w.classList.toggle("is-open", on);
+    w.setAttribute("aria-hidden", on ? "false" : "true");
+    if (on) w.removeAttribute("inert"); else w.setAttribute("inert", "");
+  }
+  function trapSoon() { clearTimeout(trapTimer); trapTimer = setTimeout(evalTrap, 600); }
+  /* ---------- Affichage ---------- */
+  var LAST = null;
+  function setText(id, v) { var el = $(id); if (el) el.textContent = v; }
+  function clearResults(msg) {
+    LAST = null;
+    $("sEmpty").hidden = false; $("sFull").hidden = true; $("resMore").hidden = true;
+    setText("sHint", msg || "");
+    setText("sMargin", "—"); setText("sRate", ""); setText("sRec", "—"); setText("sTarget", ""); setText("sReason", "");
+    setText("tPrice", "—"); setText("tOther", "—"); setText("tOtherSub", "");
+    $("applyBtn").hidden = true; $("cmpLine").hidden = true;
+    var v = $("sVerdict"); v.textContent = "En attente"; v.removeAttribute("data-v");
+    ["cA-m", "cD-m", "cA-r", "cD-r", "cA-rec", "cD-rec", "cA-fl", "cD-fl", "simInv", "simSmp", "simBen", "simBe"].forEach(function (id) { setText(id, "—"); });
+    for (var i = 0; i < 3; i++) ["p", "m", "r", "b"].forEach(function (k) { setText("sc" + i + k, "—"); });
+    $("wf").innerHTML = "";
+    setText("simNote", ""); setText("targetNote", "");
+  }
+  var ICO = {
+    tag: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+    cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 7H6"/>',
+    box: '<path d="M21 8 12 3 3 8v8l9 5 9-5V8Z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+    truck: '<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+    percent: '<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    store: '<path d="M3 21V8l9-5 9 5v13"/><path d="M7 21v-8h10v8M7 17h10"/>',
+    undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+    dots: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    snow: '<path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/>',
+    receipt: '<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+    wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2Z"/><circle cx="16" cy="14.5" r="1.2"/>'
+  };
+  function svg(k) { return '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICO[k] + "</svg>"; }
+  /* Une ligne façon transaction : + recette en vert, − coût en rouge */
+  function tx(ico, label, small, amt, kind) {
+    var cls, txt;
+    if (kind === "pos") { cls = "is-pos"; txt = "+ " + eur(amt); }
+    else if (kind === "total") { cls = amt >= 0 ? "is-pos" : "is-neg"; txt = eur(amt); }
+    else if (amt > 0.004) { cls = "is-neg"; txt = "− " + eur(amt); }
+    else { cls = "is-zero"; txt = eur(0); }
+    return '<li class="x-tx-row' + (kind === "total" ? " x-tx-total" : "") + '"><span class="x-tx-ico' + (kind === "pos" ? " is-pos" : kind === "total" ? " is-total" : "") + '">' + svg(ico) + '</span><span class="x-tx-l"><b>' + esc(label) + "</b>" + (small ? "<small>" + esc(small) + "</small>" : "") + '</span><span class="x-tx-a ' + cls + '">' + esc(txt) + "</span></li>";
+  }
+
+  function render() {
+    readForm();
+    lsSet("bm_form", F);
+    setText("sName", F.name || "Produit sans nom");
+    $("affChips").hidden = !F.aff;
+    var preset = false;
+    document.querySelectorAll("#affChips [data-aff]").forEach(function (b) { var on = Math.abs(+b.getAttribute("data-aff") - (S.aff || 0)) < 1e-9; if (on) preset = true; b.setAttribute("aria-pressed", on ? "true" : "false"); });
+    var ao = $("affOther");
+    ao.setAttribute("aria-pressed", preset ? "false" : "true");
+    if (preset) { ao.innerHTML = PENCIL; ao.setAttribute("aria-label", "Autre commission"); }
+    else { ao.textContent = nf(S.aff) + "\u202f%"; ao.setAttribute("aria-label", "Commission personnalisée " + nf(S.aff) + " %, modifier"); }
+    $("tvaRow").hidden = !(S.tvaOn || S.tvaFees);
+    setText("vatBadge", S.tvaOn ? "TVA " + nf(S.tva) + " % facturée — marge calculée sur le HT" : "Franchise en base — TVA non facturée");
+    setText("tOtherL", F.aff ? "Marge sans affilié" : "Marge avec affilié");
+    document.querySelectorAll(".x-tvaPct").forEach(function (el) { el.textContent = nf(S.tva); });
+    C = buildCtx();
+    var info = C.info;
+    setChip(info.chosen);
+    setText("catNote", F.cat === "auto" ? (info.hors ? "Hors FBT : estimation au tarif L." : "Taille détectée : " + tierLabel(info.idx) + ".") : "Saisis les dimensions pour détecter la taille.");
+    var w = $("catWarn"); w.hidden = !info.warn.length; w.textContent = info.warn.join(" ");
+    $("f-cost").classList.toggle("is-missing", !(F.cost > 0) && F.price > 0);
+    $("f-price").classList.toggle("is-missing", !(F.price > 0) && F.cost > 0);
+    renderPicks();
+    if (!(F.cost > 0)) { clearResults(F.price > 0 ? "Il manque le prix d'achat livré." : ""); return; }
+
+    var recA = recommend(true), recD = recommend(false), flA = floorPrice(true), flD = floorPrice(false);
+    var rec = F.aff ? recA : recD, typed = true, P = F.price;
+    if (!(P > 0)) { clearResults(rec ? "Repère : pour atteindre ta marge cible, vise au moins " + eur(rec) + "." : "Avec ces réglages, aucun prix n'atteint la marge cible."); return; }
+    $("sEmpty").hidden = true; $("sFull").hidden = false; $("resMore").hidden = false;
+    var uA = unit(P, true), uD = unit(P, false), u = F.aff ? uA : uD, t = target(P), bi = bandIdx(P);
+    var v = verdict(P, uA, uD);
+
+    /* carte résultat */
+    setText("sMargin", eur(u.m));
+    setText("sRate", "soit " + pct(u.rate) + " du prix de vente" + (S.tvaOn ? " HT" : "") + " · " + (F.aff ? "avec affilié" : "sans affilié"));
+    var vb = $("sVerdict"); vb.textContent = v.txt; vb.setAttribute("data-v", v.cls);
+    setText("sReason", v.why);
+
+    /* tuiles */
+    setText("tPrice", eur(P));
+    setText("sRec", rec ? eur(rec) : "Inatteignable");
+    setText("sTarget", rec ? "Pour gagner " + nf(target(rec)) + " € par vente (palier " + bandLabel(bandIdx(rec)) + ")" : "Cible hors d'atteinte avec ces réglages");
+    var o = F.aff ? uD : uA;
+    setText("tOther", eur(o.m));
+    setText("tOtherSub", "soit " + pct(o.rate));
+    setText("tip3", F.aff
+      ? "Ta marge si la vente se fait sans créateur affilié, donc sans sa commission de " + nf(S.aff) + " %."
+      : "Ta marge si un créateur affilié fait la vente : il prend " + nf(S.aff) + " % du prix.");
+    var cmp = $("cmpLine"), short = false;
+    cmp.hidden = false;
+    if (rec == null) { cmp.setAttribute("data-v", "none"); cmp.textContent = "Marge cible hors d'atteinte avec ces réglages."; }
+    else {
+      var miss = target(rec) - u.m;
+      if (!(miss > 0.004)) miss = target(P) - u.m;
+      short = P < rec - 0.004 && miss > 0.004;
+      cmp.setAttribute("data-v", short ? "bad" : "good");
+      cmp.textContent = short ? "Il te manque " + eur(miss) + " de marge — monte à " + eur(rec) : "✓ Ton prix atteint l'objectif";
+    }
+    $("applyBtn").hidden = !short;
+    if (short) setText("applyTxt", "Appliquer ce prix (" + eur(rec) + ")");
+
+    /* deux scénarios */
+    setText("cA-m", eur(uA.m)); setText("cD-m", eur(uD.m));
+    setText("cA-r", pct(uA.rate)); setText("cD-r", pct(uD.rate));
+    setText("cA-rec", recA ? eur(recA) : "Inatteignable"); setText("cD-rec", recD ? eur(recD) : "Inatteignable");
+    setText("cA-fl", eur(flA)); setText("cD-fl", eur(flD));
+    setText("targetNote", "Prix pour ta marge cible : plus petit prix en x,90 € qui atteint la marge cible de son palier. Au prix retenu, palier " + bandLabel(bi) + " : cible " + eur(t) + "." + (u.roi != null && u.roi < 1 ? " ROI sous 100 % : rotation du capital faible." : ""));
+
+    /* cascade */
+    var shipNote = C.vp ? "Value+ " + tierLabel(info.idx) + (vpEnded() ? " · tarif Standard dès le 1er nov. 2026" : " · −0,20 € jusqu'au 31/10/2026") : (P >= 20 ? "Payée par toi dès 20 €" : "Payée par le client (< 20 €)");
+    var feeNote = C.k > 1 ? " · TVA " + nf(S.tva) + " % incluse" : "";
+    var html =
+      tx("tag", "Ton prix de vente", "Prix affiché au client", P, "pos") +
+      (S.tvaOn ? tx("receipt", "TVA collectée (" + nf(S.tva) + " %)", "Prix HT : " + eur(u.ht), u.tvaAmt) : "") +
+      tx("cart", "Prix d'achat", eur(F.cost) + " + douane " + nf(S.duty || 0) + " % + étiquetage " + eur(S.label || 0), C.cost) +
+      tx("box", "Frais d'exploitation FBT", (info.hors ? "Hors FBT, estimation" : tierLabel(info.idx)) + feeNote, C.prep) +
+      tx("truck", "Frais d'expédition FBT", shipNote + feeNote, u.ship) +
+      (C.hs > 0 ? tx("snow", "Haute saison", "Par colis" + feeNote, C.hs) : "") +
+      tx("percent", "Commission TikTok " + nf(S.comm) + " %", "Sur le prix de vente" + feeNote, u.comm) +
+      tx("user", "Commission affilié " + nf(S.aff) + " %", F.aff ? "Sur le prix de vente" : "Vente directe : non appliquée", u.aff) +
+      (C.days <= FREE_DAYS
+        ? tx("store", "Stockage", "Gratuit jusqu'à 60 j · " + nf(C.days) + " j en stock en moyenne", 0)
+        : tx("store", "Stockage", nf(info.vol, 4) + " m³ × " + nf(C.days - FREE_DAYS) + " j facturés (au-delà de 60 j) · " + nf(storageM3(C.days), 2) + " €/m³" + feeNote, C.sto)) +
+      tx("undo", "Retours", "Provision " + nf(S.ret || 0) + " % du prix", u.ret) +
+      tx("dots", "Autres frais", "Frais divers par vente", C.div) +
+      tx("wallet", "Marge nette", pct(u.rate) + (S.tvaOn ? " du HT" : " du prix") + " · ROI " + pct(u.roi), u.m, "total");
+    $("wf").innerHTML = html;
+
+    /* simulation */
+    var qty = Math.max(Math.round(F.qty || 0), 0), n = Math.min(Math.max(Math.round(S.samples || 0), 0), qty);
+    var smpUnit = C.cost + C.prep + C.smp + C.hs, sellable = qty - n;
+    var invest = qty * C.cost, smpCost = n * smpUnit, ben = sellable * u.m;
+    var cashOut = invest + n * (C.prep + C.smp + C.hs), perSale = u.m + C.cost;
+    var be = perSale > 0 ? Math.ceil(cashOut / perSale - 1e-9) : null;
+    setText("simInv", eur(invest));
+    setText("simSmp", eur(smpCost)); setText("simSmpL", "Échantillons affiliés (" + n + ")");
+    setText("simBen", eur(ben)); setText("simBenL", "Bénéfice potentiel (" + nf(sellable) + " vendues)");
+    setText("simBe", be == null ? "Jamais" : nf(be)); setText("simBeL", "Ventes pour rembourser" + (be != null && be > sellable ? " (plus que le stock)" : ""));
+    setText("simNote", "Après échantillons : " + eur(ben - smpCost) + ". Un échantillon coûte " + eur(smpUnit) + " (produit + frais d'exploitation + frais d'expédition échantillon " + eur(C.smp) + (C.hs > 0 ? " + haute saison " + eur(C.hs) : "") + "). Remboursement : investissement et frais d'échantillons, divisés par l'encaissement net par vente (" + eur(perSale) + ").");
+    var base = rec || P;
+    [base - 2, base, base + 2].forEach(function (p, i) {
+      if (!(p > 0)) { ["p", "m", "r", "b"].forEach(function (k) { setText("sc" + i + k, "—"); }); return; }
+      var x = unit(p, F.aff);
+      setText("sc" + i + "p", eur(p)); setText("sc" + i + "m", eur(x.m)); setText("sc" + i + "r", pct(x.rate)); setText("sc" + i + "b", eur(sellable * x.m));
+    });
+
+    LAST = { price: P, m: u.m, rate: u.rate, verdict: v.txt, cls: v.cls, cat: info.hors ? "Hors FBT" : info.chosen, cost: C.cost, rec: rec };
+  }
+
+  /* ---------- Réglages ---------- */
+  function buildSettings() {
+    var tb = "";
+    S.tiers.forEach(function (t, i) {
+      var l = CATS[t.cat], NAMES = { prep: "frais d'exploitation", ship: "frais d'expédition", vp: "Value+", smp: "expédition échantillon" };
+      tb += '<tr><th scope="row">' + esc(tierLabel(i)) + "<small>≤ " + l.join("×") + " cm</small></th>" +
+        ["prep", "ship", "vp", "smp"].map(function (k) { return '<td><input class="x-input" type="text" inputmode="decimal" data-t="' + i + ":" + k + '" aria-label="' + esc(tierLabel(i) + " " + NAMES[k]) + '" /></td>'; }).join("") + "</tr>";
+    });
+    $("tierBody").innerHTML = tb;
+    buildBands();
+  }
+  function bandNote(i) {
+    var b = S.bands[i], n = S.bands[i + 1], ref = i === 0 ? (n ? n.lo : null) : b.lo;
+    if (!(ref > 0)) return "Marge nette cible par unité";
+    return "≈ " + pct((b.t || 0) / ref) + " d'un prix de " + nf(ref) + " €";
+  }
+  function buildBands() {
+    var one = S.bands.length < 2;
+    $("bandList").innerHTML = S.bands.map(function (b, i) {
+      var lab = esc(bandLabel(i));
+      var head = i === 0
+        ? '<span class="x-band-r">' + lab + "</span>"
+        : '<button type="button" class="x-band-r" data-blo="' + i + '" aria-label="' + lab + ', modifier le prix de début">' + lab + "</button>";
+      return '<li class="x-band"><span class="x-band-l">' + head + '<small data-bn="' + i + '">' + esc(bandNote(i)) + "</small></span>" +
+        '<span class="x-affix"><input class="x-input" type="text" inputmode="decimal" autocomplete="off" data-b="' + i + '" aria-label="Marge cible ' + lab + ' en €" /><i>€</i></span>' +
+        '<button type="button" class="x-band-x" data-bdel="' + i + '" aria-label="Supprimer le palier ' + lab + '"' + (one ? " disabled" : "") + ">−</button></li>";
+    }).join("");
+    document.querySelectorAll("[data-b]").forEach(function (el) { el.value = toInput(S.bands[+el.getAttribute("data-b")].t); });
+  }
+  function saveBands() {
+    S.bands.sort(function (a, b) { return a.lo - b.lo; });
+    S.bands[0].lo = 0;
+    lsSet("bm_settings", S); buildBands(); render();
+  }
+  function editBandLo(i) {
+    var btn = document.querySelector('[data-blo="' + i + '"]'); if (!btn) return;
+    var wrap = document.createElement("span");
+    wrap.className = "x-band-lo";
+    wrap.innerHTML = 'Dès <span class="x-affix"><input class="x-input" type="text" inputmode="decimal" autocomplete="off" aria-label="Prix de début du palier en €" /><i>€</i></span>';
+    btn.replaceWith(wrap);
+    var inp = wrap.querySelector("input"), done = false;
+    inp.value = toInput(S.bands[i].lo);
+    inp.focus(); inp.select();
+    function commit(keep) {
+      if (done) return; done = true;
+      var v = num(inp.value);
+      if (keep && v != null && v > 0 && !S.bands.some(function (b, j) { return j !== i && Math.abs(b.lo - v) < 1e-9; })) S.bands[i].lo = v;
+      saveBands();
+    }
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); commit(true); } else if (e.key === "Escape") commit(false); });
+    inp.addEventListener("blur", function () { commit(true); });
+  }
+  function fillSettings() {
+    document.querySelectorAll("[data-s]").forEach(function (el) { el.value = toInput(S[el.getAttribute("data-s")]); });
+    document.querySelectorAll("[data-sc]").forEach(function (el) { var k = el.getAttribute("data-sc"); el.checked = k === "hsOn" ? hsActive() : !!S[k]; });
+    document.querySelectorAll("[data-st]").forEach(function (el) { el.value = toInput(S.storage[+el.getAttribute("data-st")]); });
+    document.querySelectorAll("[data-t]").forEach(function (el) { var p = el.getAttribute("data-t").split(":"); el.value = toInput(S.tiers[+p[0]][p[1]]); });
+    document.querySelectorAll("[data-b]").forEach(function (el) { el.value = toInput(S.bands[+el.getAttribute("data-b")].t); });
+  }
+  function onSetting(el) {
+    if (el.hasAttribute("data-sc")) { S[el.getAttribute("data-sc")] = el.checked; lsSet("bm_settings", S); return true; }
+    var v = num(el.value); if (v == null || v < 0) return false;
+    if (el.hasAttribute("data-s")) S[el.getAttribute("data-s")] = v;
+    else if (el.hasAttribute("data-st")) S.storage[+el.getAttribute("data-st")] = v;
+    else if (el.hasAttribute("data-t")) { var p = el.getAttribute("data-t").split(":"); S.tiers[+p[0]][p[1]] = v; }
+    else if (el.hasAttribute("data-b")) { var bi = +el.getAttribute("data-b"); S.bands[bi].t = v; var bn = document.querySelector('[data-bn="' + bi + '"]'); if (bn) bn.textContent = bandNote(bi); }
+    else return false;
+    lsSet("bm_settings", S);
+    return true;
+  }
+
+  /* ---------- Mes produits ---------- */
+  function renderList() {
+    setText("pCount", PRODUCTS.length ? String(PRODUCTS.length) : "");
+    if (!PRODUCTS.length) { $("plist").innerHTML = '<li class="x-empty">Aucun produit enregistré.</li>'; return; }
+    $("plist").innerHTML = PRODUCTS.map(function (p, i) {
+      var ini = String(p.name || "").trim().charAt(0).toUpperCase() || "?";
+      var href = safeHref(p.link || (p.form && p.form.link));
+      var lnk = href ? '<a class="x-lnk" href="' + esc(href) + '" target="_blank" rel="noopener" aria-label="Ouvrir la page de ' + esc(p.name) + '"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 10a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.1-1.1"/></svg></a>' : "";
+      var im = imgUrl(p.image || (p.form && p.form.image));
+      var av = esc(ini) + (im ? '<img src="' + esc(im) + '" alt="" loading="lazy" referrerpolicy="no-referrer" decoding="async" />' : "");
+      return '<li class="x-item"><div class="x-row"><button type="button" class="x-open" data-open="' + i + '"><span class="x-av" aria-hidden="true">' + av + '</span><span class="x-it"><b>' + esc(p.name) + '</b><span class="x-verdict" data-v="' + esc(p.cls) + '">' + esc(cleanV(p.verdict)) + '</span></span><span class="x-mr"><b>' + esc(eur(p.m)) + "</b><small>marge · " + esc(pct(p.rate)) + "</small></span></button>" + lnk + "</div>" +
+        '<button type="button" class="x-del" data-del="' + i + '" aria-label="Supprimer ' + esc(p.name) + '">Supprimer</button></li>';
+    }).join("");
+  }
+  function saveProduct() {
+    if (!LAST) { setText("saveMsg", "Rien à enregistrer : saisis d'abord le prix d'achat et ton prix de vente."); return; }
+    PRODUCTS.unshift({ name: F.name || "Produit sans nom", link: F.link || "", image: F.image || "", date: new Date().toISOString(), price: LAST.price, m: LAST.m, rate: LAST.rate, verdict: LAST.verdict, cls: LAST.cls, cat: LAST.cat, cost: LAST.cost, form: clone(F) });
+    var ok = lsSet("bm_products", PRODUCTS);
+    renderList();
+    setText("saveMsg", ok ? "Produit enregistré dans Mes produits." : "Ajouté à Mes produits pour cette session (sauvegarde locale indisponible).");
+  }
+  function cleanV(s) { return String(s || "").replace(/^[^A-Za-zÀ-ÿ]+/, ""); }
+  function csvCell(v) { var s = String(v == null ? "" : v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function dec(v) { return v == null || !isFinite(v) ? "" : v.toFixed(2).replace(".", ","); }
+  function exportCsv() {
+    if (!PRODUCTS.length) return;
+    var lines = [["Nom", "Date", "Prix de vente", "Marge nette", "Taux de marge %", "Verdict", "Coût de revient complet", "Catégorie FBT", "Lien", "Image"].join(";")];
+    PRODUCTS.forEach(function (p) {
+      lines.push([p.name, new Date(p.date).toLocaleDateString("fr-FR"), dec(p.price), dec(p.m), dec(p.rate * 100), cleanV(p.verdict), dec(p.cost), p.cat, p.link || (p.form && p.form.link) || "", p.image || (p.form && p.form.image) || ""].map(csvCell).join(";"));
+    });
+    var text = "\ufeff" + lines.join("\r\n"), name = "margo-produits.csv", href;
+    try { href = URL.createObjectURL(new Blob([text], { type: "text/csv;charset=utf-8" })); } catch (e) { href = "data:text/csv;charset=utf-8," + encodeURIComponent(text); }
+    var a = document.createElement("a"); a.href = href; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); if (href.indexOf("blob:") === 0) try { URL.revokeObjectURL(href); } catch (e) {} }, 1000);
+  }
+
+  /* ---------- Onglets ---------- */
+  function showTab(id) {
+    document.querySelectorAll(".x-tabbar [data-tab]").forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === id ? "true" : "false"); });
+    document.querySelectorAll(".x-panel").forEach(function (p) { p.hidden = p.id !== id; });
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Thème clair / sombre ---------- */
+  var root = document.documentElement, mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function themeNow() { return root.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
+  function applyTheme(t) {
+    root.setAttribute("data-theme", t);
+    $("themeColor").setAttribute("content", t === "dark" ? "#0B0D12" : "#F2F4F7");
+    $("themeBtn").setAttribute("aria-label", t === "dark" ? "Passer en mode clair" : "Passer en mode sombre");
+  }
+  function savedTheme() { try { var t = localStorage.getItem("hark-theme"); return t === "light" || t === "dark" ? t : null; } catch (e) { return null; } }
+  function setupTheme() {
+    applyTheme(themeNow());
+    $("themeBtn").addEventListener("click", function () {
+      var t = themeNow() === "dark" ? "light" : "dark";
+      applyTheme(t);
+      try { localStorage.setItem("hark-theme", t); } catch (e) {}
+    });
+    if (mq) {
+      var follow = function (e) { if (!savedTheme()) applyTheme(e.matches ? "dark" : "light"); };
+      if (mq.addEventListener) mq.addEventListener("change", follow); else if (mq.addListener) mq.addListener(follow);
+    }
+  }
+
+  /* ---------- Prix : pas de 1 €, prix rapides, commission affilié ---------- */
+  var PENCIL = $("affOther").innerHTML;
+  function editAff() {
+    var ao = $("affOther"), ed = $("affEdit"), inp = $("affIn");
+    inp.value = toInput(S.aff);
+    ao.hidden = true; ed.hidden = false;
+    inp.focus(); inp.select();
+  }
+  function closeAff() {
+    var ao = $("affOther"), ed = $("affEdit");
+    if (ed.hidden) return;
+    var v = num($("affIn").value);
+    if (v != null) { S.aff = Math.min(Math.max(v, 0), 100); lsSet("bm_settings", S); }
+    ed.hidden = true; ao.hidden = false;
+    fillSettings(); render(); evalTrap();
+  }
+  $("affIn").addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); $("affIn").blur(); } });
+  $("affIn").addEventListener("blur", closeAff);
+  function setPrice(id, v) { $(id).value = v == null ? "" : v.toFixed(2).replace(".", ","); render(); evalTrap(); }
+
+  /* ---------- Démarrage ---------- */
+  buildSettings(); fillSettings(); fillForm(); renderList();
+  $("noSaveNote").hidden = canSave; $("saveNote").hidden = !canSave;
+  setText("storeNote", canSave ? "Réglages et produits sont enregistrés sur cet appareil." : "Sauvegarde locale indisponible ici : l'app fonctionne entièrement, sans mémoriser.");
+  render(); evalTrap(); setupTheme();
+
+  $("p-calc").addEventListener("input", function (e) {
+    var id = e.target.id;
+    if (id === "f-link") onLink();
+    else if (id === "f-name") { F.nameAuto = false; nameNote(""); }
+    else if (id === "affIn") { var av = num(e.target.value); if (av == null) return; S.aff = Math.min(Math.max(av, 0), 100); lsSet("bm_settings", S); }
+    if (e.target.name === "cat") F.cat = e.target.value;
+    else if (id === "f-L" || id === "f-W" || id === "f-H" || id === "f-kg") F.cat = "auto";
+    render();
+    if (id !== "f-link" && id !== "f-name") trapSoon();
+  });
+  $("p-calc").addEventListener("change", function (e) { if (e.target.name === "cat") F.cat = e.target.value; render(); evalTrap(); });
+  $("f-price").addEventListener("blur", evalTrap);
+  $("f-cost").addEventListener("blur", evalTrap);
+  $("p-set").addEventListener("input", function (e) { if (onSetting(e.target)) { render(); trapSoon(); } });
+  $("p-set").addEventListener("change", function (e) { if (e.target.matches("input")) fillSettings(); });
+  $("newBtn").addEventListener("click", function () { F = blankProduct(); fillForm(); render(); evalTrap(); setText("saveMsg", ""); $("f-link").focus(); });
+  $("saveBtn").addEventListener("click", saveProduct);
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    $("pasteBtn").hidden = false;
+    $("pasteBtn").addEventListener("click", function () {
+      navigator.clipboard.readText().then(function (t) {
+        $("f-link").value = String(t || "").trim(); onLink(); render();
+      }).catch(function () {
+        $("linkMsg").hidden = false; $("linkMsg").textContent = "Accès au presse-papiers refusé : appuie longuement dans le champ puis Coller.";
+        $("f-link").focus();
+      });
+    });
+  }
+  $("p-calc").addEventListener("click", function (e) {
+    var st = e.target.closest("[data-step]"), pc = e.target.closest("[data-price]"), ac = e.target.closest("[data-aff]");
+    if (st) { var id = st.getAttribute("data-step"), cur = num($(id).value) || 0; setPrice(id, Math.max(Math.round((cur + +st.getAttribute("data-d")) * 100) / 100, 0)); return; }
+    if (pc) { setPrice("f-price", +pc.getAttribute("data-price")); return; }
+    if (ac) { S.aff = +ac.getAttribute("data-aff"); lsSet("bm_settings", S); fillSettings(); render(); evalTrap(); return; }
+    if (e.target.closest("#affOther")) { editAff(); return; }
+    var b = e.target.closest(".x-i"); if (!b) return;
+    var tip = $(b.getAttribute("aria-controls")), open = b.getAttribute("aria-expanded") !== "true";
+    b.setAttribute("aria-expanded", open ? "true" : "false"); tip.hidden = !open;
+  });
+  $("applyBtn").addEventListener("click", function () { if (!LAST || LAST.rec == null) return; $("f-price").value = LAST.rec.toFixed(2).replace(".", ","); render(); evalTrap(); });
+  $("csvBtn").addEventListener("click", exportCsv);
+  $("resetBtn").addEventListener("click", function () { S = clone(DEF); lsSet("bm_settings", S); buildSettings(); fillSettings(); render(); evalTrap(); });
+  $("bandList").addEventListener("click", function (e) {
+    var lo = e.target.closest("[data-blo]"), del = e.target.closest("[data-bdel]");
+    if (lo) { editBandLo(+lo.getAttribute("data-blo")); return; }
+    if (del && S.bands.length > 1) { S.bands.splice(+del.getAttribute("data-bdel"), 1); saveBands(); }
+  });
+  $("bandAdd").addEventListener("click", function () {
+    var last = S.bands[S.bands.length - 1];
+    S.bands.push({ lo: Math.round(last.lo + 50), t: last.t });
+    saveBands();
+    var ins = document.querySelectorAll("[data-b]"); if (ins.length) ins[ins.length - 1].focus();
+  });
+  $("bandReset").addEventListener("click", function () { S.bands = clone(DEF.bands); saveBands(); });
+  $("f-thumb").addEventListener("load", function () { this.classList.add("is-in"); });
+  $("f-thumb").addEventListener("error", function () { this.classList.remove("is-in"); this.hidden = true; });
+  $("plist").addEventListener("load", function (e) { if (e.target.tagName === "IMG") e.target.classList.add("is-in"); }, true);
+  $("plist").addEventListener("error", function (e) { if (e.target.tagName === "IMG") e.target.remove(); }, true);
+  $("plist").addEventListener("click", function (e) {
+    var o = e.target.closest("[data-open]"), d = e.target.closest("[data-del]");
+    if (d) { PRODUCTS.splice(+d.getAttribute("data-del"), 1); lsSet("bm_products", PRODUCTS); renderList(); return; }
+    if (o) { var p = PRODUCTS[+o.getAttribute("data-open")]; if (!p) return; F = Object.assign(blankProduct(), clone(p.form)); if (!F.image && p.image) F.image = p.image; fillForm(); render(); evalTrap(); showTab("p-calc"); }
+  });
+  document.querySelectorAll(".x-tabbar [data-tab]").forEach(function (b) { b.addEventListener("click", function () { showTab(b.getAttribute("data-tab")); }); });
+})();
+    </script>
+    <script src="hark.js"></script>
+  </body>
+</html>
